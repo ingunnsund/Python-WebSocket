@@ -65,10 +65,10 @@ class WebSocket(object):
                     connection.send(str.encode("""HTTP/1.1 101 Switching Protocols
                     Upgrade: websocket
                     Connection: Upgrade
-                    Sec-WebSocket-Accept: """ + sec_websocket_key + """
+                    Sec-WebSocket-Accept: {}
                     Sec-WebSocket-Protocol: chat
 
-                    """))
+                    """.format(sec_websocket_accept)))
                     close_down = True
 
                 except socket.error as e:
