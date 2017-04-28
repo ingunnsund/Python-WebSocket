@@ -14,4 +14,4 @@ A Python WebSocket library
 ## Testing
 
 ## License 
-MIT License: Copyright (c) 2017 Ingunn Sund and Knut Kirkhorn
+MIT License: Copyright :copyright: 2017 Ingunn Sund and Knut Kirkhorn
