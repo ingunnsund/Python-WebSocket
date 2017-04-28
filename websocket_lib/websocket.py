@@ -1,6 +1,7 @@
 import socket
-import hashlib
-import base64
+from hashlib import sha1
+from base64 import b64encode
+
 
 class WebSocket(object):
 
@@ -22,8 +23,8 @@ class WebSocket(object):
         print("SEND_MESSAGE")
 
     def make_accept_key(self, sec_key):
-        hash_key = hashlib.sha1(str.encode(sec_key)).digest()
-        new_accept_key = base64.b64encode(hash_key)
+        hash_key = sha1(str.encode(sec_key)).digest()
+        new_accept_key = b64encode(hash_key)
         return new_accept_key
 
     def start_server(self):
@@ -59,7 +60,7 @@ class WebSocket(object):
                     # if received_headers.find("") >=
 
                     #TODO: blir alt som er igjen, BUG
-                    sec_websocket_key = received_headers.split("Sec-WebSocket-Key: ")[1]
+                    sec_websocket_key = received_headers.split("Sec-WebSocket-Key: ")[1].split("\n")[0]
                     sec_websocket_accept = self.make_accept_key(sec_websocket_key)
 
                     connection.send(str.encode("""HTTP/1.1 101 Switching Protocols
@@ -75,3 +76,6 @@ class WebSocket(object):
                     print("Error: ")
                     # TODO: print e?
 
+
+wSocket = WebSocket()
+wSocket.start_server()
