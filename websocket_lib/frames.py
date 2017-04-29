@@ -77,7 +77,6 @@ class Frames(object):
     # Decode message from client
     def decode_message(self, message):
         byte_list = message
-
-
+        
 
 
