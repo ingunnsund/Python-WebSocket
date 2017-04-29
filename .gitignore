@@ -61,6 +61,7 @@ modules.xml
 *.ipr
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/vcs.xml
+.cpython-36
 
 # Sonarlint plugin
 .idea/sonarlint
