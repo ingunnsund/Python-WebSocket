@@ -76,7 +76,22 @@ class Frames(object):
 
     # Decode message from client
     def decode_message(self, message):
-        byte_list = message
-        
+        message = bytearray(message.encode())
+        decoded_message = []
+        mask_start = 2
+        if message[1] == 126:
+            mask_start = 4
+        if message[1] == 127:
+            mask_start = 10
 
+        data_start = mask_start + 4
+        masks = message[mask_start:data_start] #[m for m in message[mask_start:data_start]]
+
+        j = 0
+        while data_start < len(message):
+            decoded_message.append((chr((message[data_start]) ^ (masks[j%4]))).encode().decode("utf-8"))
+            data_start += 1
+            j += 1
+
+        return ''.join(decoded_message)
 
