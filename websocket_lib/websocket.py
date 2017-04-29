@@ -2,6 +2,8 @@ import socket
 from hashlib import sha1
 from base64 import b64encode
 
+from websocket_lib.client_socket import ClientSocket
+
 
 class WebSocket(object):
 
@@ -20,9 +22,6 @@ class WebSocket(object):
         #PROXY
         #THREADS
 
-    def do_handshake(self):
-        print("HANDSHAKE")
-
     def send_message(self):
         print("SEND_MESSAGE")
 
@@ -38,6 +37,7 @@ class WebSocket(object):
 
         while self.server_running:
             connection, address = listen_socket.accept() #TODO. start thread med ny connection
+            client = ClientSocket(connection)
 
             close_down = False
             while not close_down:
@@ -52,20 +52,34 @@ class WebSocket(object):
                     print(received_headers)
                     print("\n-------\n")
 
-                    #TODO: check if handshake client
-                    if self.check_client_handshake(received_headers):
-                        sec_websocket_key = received_headers.split("Sec-WebSocket-Key: ")[1].split("\n")[0]
-                        sec_websocket_accept = self.make_accept_key(sec_websocket_key).decode("UTF-8")
+                    if client.has_handshaked:
+                        print("has handshaked")
+                        #TODO: do stuff with message/frames?
+                    else:
+                        if self.check_client_handshake(received_headers):
+                            sec_websocket_key = received_headers.split("Sec-WebSocket-Key: ")[1].split("\n")[0]
+                            sec_websocket_accept = self.make_accept_key(sec_websocket_key).decode("UTF-8")
 
-                        temp_handshake_response = str.encode(self.handshake_response.format(sec_websocket_accept))
+                            temp_handshake_response = str.encode(self.handshake_response.format(sec_websocket_accept))
 
-                        connection.send(temp_handshake_response)
+                            connection.send(temp_handshake_response)
 
-                        print("Sendt response:")
-                        print(temp_handshake_response.decode("UTF-8"))
-                        print("-----")
+                            print("Sendt response:")
+                            print(temp_handshake_response.decode("UTF-8"))
+                            print("-----")
 
-                        close_down = True
+                            close_down = True
+                        else:
+                            connection.send(str.encode("HTTP/1.1 426 Upgrade Required\r\n"
+                                             +"Content-Type: text/html\r\n"
+                                             +"\r\n"
+                                             + "<html><body>\r\n"
+                                             + "<pre>Upgrade Required</pre>\r\n"
+                                             + "</body></head>\r\n\r\n"))
+                            print("not correctly displayed handshake")
+                            connection.close()
+                            close_down = True
+
 
                 except socket.error as e:
                     print("Error: ")
@@ -74,7 +88,7 @@ class WebSocket(object):
     @staticmethod
     def check_client_handshake(client_handshake):
         # The openning handshake must be a GET request and be at least HTTP 1.1 #TODO: fiks høyere versjoner
-        if not client_handshake.find("GET / HTTP/1.1"):
+        if not client_handshake.find("GET / HTTP/1.1") >= 0:
             # TODO: can receive a handshake with higher version of HTTP than 1.1
             return False
 
@@ -104,7 +118,7 @@ class WebSocket(object):
         return True
 
 
-wSocket = WebSocket(3001)
+web_socket = WebSocket(3001)
 print("Starting WebSocket server...")
-wSocket.start_server()
+web_socket.start_server()
 print("WebSocket server running...")
