@@ -1,18 +1,13 @@
 # FIN: final fragment
 # RSV1,2,3: MUST be 0 unless an extension is negotiated that defines meanings for non-zero values.
 # opcode:
-""" *  %x0 denotes a continuation frame
-    *  %x1 denotes a text frame
+""" *  %x0 denotes a continuation frame             -
     *  %x2 denotes a binary frame
-    *  %x3-7 are reserved for further non-control frames
-    *  %x8 denotes a connection close
+    *  %x8 denotes a connection close               -
     *  %x9 denotes a ping
     *  %xA denotes a pong
-    *  %xB-F are reserved for further control frames"""
-# Mask: is masked
 # Payload length:  7 bits, 7+16 bits, or 7+64 bits
-# Masking key: 0 or 4 bytes
-
+"""
 """
   0                   1                   2                   3
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -45,8 +40,8 @@ class Frames(object):
         if not isinstance(status_code, StatusCode):
             raise TypeError('status_code must be an instance of StatusCode Enum')
 
-        message = str(status_code.value) + " " + str(status_code.name) + " Reason: " + reason
-        return self.encode_message(str(message), "1000")
+        message = str(str(status_code.name) + " Reason: " + reason)
+        return self.encode_message(str(message), "1000", status_code.value)
 
 
     def send_text_frame(self, message):
@@ -59,16 +54,18 @@ class Frames(object):
         return self.encode_message(message, "1010")
 
     # Encode message from server
-    def encode_message(self, message, opcode):
+    def encode_message(self, message, opcode, status_code=0):
         if len(message) == 0:
             return -1
         fin = "1"
         rsv1 = "0"
         rsv2 = "0"
         rsv3 = "0"
-        byte_list = [] #list of integers
-        #opcode = "0001" #TEXT
-        message_bytes = bytes(message, "ascii")
+        byte_list = []
+        if not status_code == 0:
+            message_bytes = bytes(status_code) + bytes(message, "ascii")
+        else:
+            message_bytes = bytes(message, "ascii")
         message_length = len(message_bytes)
         byte_list.append((int(fin + rsv1 + rsv2 + rsv3 + opcode, 2)))
 
