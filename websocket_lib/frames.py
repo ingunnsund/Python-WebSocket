@@ -87,11 +87,22 @@ class Frames(object):
         data_start = mask_start + 4
         masks = message[mask_start:data_start] #[m for m in message[mask_start:data_start]]
 
-        j = 0
+
+        #data_start -= data_start
+
+        for j in range(data_start, len(message)):
+            test = chr(message[data_start] ^ masks[j%4])
+            test1 = message[data_start] ^ masks[j%4]
+            #test2 = (message[data_start] ^ masks[j%4]).decode("utf-8")
+            decoded_message.append(test)
+
+
+            """
+            j = 0
         while data_start < len(message):
             decoded_message.append((chr((message[data_start]) ^ (masks[j%4]))).encode().decode("utf-8"))
             data_start += 1
-            j += 1
+            j += 1"""
 
         return ''.join(decoded_message)
 

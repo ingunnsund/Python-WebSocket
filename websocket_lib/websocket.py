@@ -1,6 +1,7 @@
 import socket
 
 from websocket_lib.client_socket import ClientSocket
+from websocket_lib.frames import Frames
 
 
 class WebSocket(object):
@@ -38,12 +39,15 @@ class WebSocket(object):
 
                 if client.handshake_done:
                     print("has handshaked")
+
                     # TODO: do stuff with message/frames?
                 else:
                     if self.check_client_handshake(received_headers):
                         sec_websocket_key = received_headers.split("Sec-WebSocket-Key: ")[1].split("\r\n")[0]
 
                         client.do_handshake(sec_websocket_key)
+                        send = Frames()
+                        client.send(send.encode_message("Hei Knut hello du der"))
                         # close_down = True
                     else:
                         client.send(str.encode("HTTP/1.1 426 Upgrade Required\r\n"
