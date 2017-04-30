@@ -1,13 +1,3 @@
-# FIN: final fragment
-# RSV1,2,3: MUST be 0 unless an extension is negotiated that defines meanings for non-zero values.
-# opcode:
-""" *  %x0 denotes a continuation frame             -
-    *  %x2 denotes a binary frame
-    *  %x8 denotes a connection close               -
-    *  %x9 denotes a ping
-    *  %xA denotes a pong
-# Payload length:  7 bits, 7+16 bits, or 7+64 bits
-"""
 """
   0                   1                   2                   3
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -27,14 +17,14 @@
  + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
  |                     Payload Data continued ...                |
  +---------------------------------------------------------------+
- """
+"""
 
 from websocket_lib.exceptions import FrameNotMaskedException
 from websocket_lib.status_code import StatusCode
 
 class Frames(object):
 
-    def send_close_frame(self, status_code, reason=""):
+    def close_frame(self, status_code, reason=""):
         # Reason example: endpoint shutting down, endpoint recieved a frame too large, endpoint recieved a frame that does not conform to the format expected
         if not isinstance(status_code, StatusCode):
             raise TypeError('status_code must be an instance of StatusCode Enum')
@@ -42,14 +32,19 @@ class Frames(object):
         message = str(str(status_code.name) + " Reason: " + reason)
         return self.encode_message(str(message), "1000", status_code.value)
 
+    def continuation_frame(self, message):
+        return self.encode_message(message, "0000")
 
-    def send_text_frame(self, message):
+    def binary_frame(self, message):
+        return self.encode_message(message, "0010")
+
+    def text_frame(self, message):
         return self.encode_message(message, "0001")
 
-    def send_ping_frame(self, message):
+    def ping_frame(self, message):
         return self.encode_message(message, "1001")
 
-    def send_pong_frame(self, message):
+    def pong_frame(self, message):
         return self.encode_message(message, "1010")
 
     # Encode message from server
@@ -62,7 +57,10 @@ class Frames(object):
         rsv3 = "0"
         byte_list = []
         if not status_code == 0:
-            message_bytes = bytes(status_code) + bytes(message, "ascii")
+            #test = bytes(int(status_code))
+            message_bytes = status_code.to_bytes(2, byteorder='big') + bytes(message, "ascii")
+            print(status_code.to_bytes(2, byteorder='big'))
+            print(message_bytes)
         else:
             message_bytes = bytes(message, "ascii")
         message_length = len(message_bytes)
