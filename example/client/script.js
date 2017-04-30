@@ -10,8 +10,9 @@ $(document).ready(function() {
         console.log(error);
     }
 
-    webSocket.onopen = () => {
+    webSocket.onopen = (message) => {
         console.log("Connection is open");
+        console.log(message);
         webSocket.send("This is a test message");
     }
 

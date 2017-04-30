@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class StatusCode(Enum):
     CLOSE_NORMAL = 1000         #Normal closure; the connection successfully completed whatever purpose for which it was created.
     CLOSE_GOING_AWAY = 1001     #The endpoint is going away, either because of a server failure or because the browser is navigating away from the page that opened the connection.
