@@ -1,6 +1,7 @@
 import socket
 
 from websocket_lib.client_socket import ClientSocket
+from websocket_lib.frames import Frames
 
 
 class WebSocket(object):
