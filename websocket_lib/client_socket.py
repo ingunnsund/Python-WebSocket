@@ -59,6 +59,8 @@ class ClientSocket(Thread):
             except socket.error as e:
                 print("Error: ")
                 # TODO: print e?
+                # TODO: Check type of error and then check if it is needed to close the client
+                self.close()
 
     def receive(self, buffer_size):
         return self.socket.recv(buffer_size)
