@@ -37,13 +37,15 @@ class ClientSocket(Thread):
                     frame = Frames()
                     message_from_client = frame.decode_message(received_bytes)
                     print("Message from client: ", message_from_client)
-                    #self.send(frame.encode_message("Hei tilbake", "0001"))
-                    self.send(frame.send_text_frame("test"))
+                    #self.send(frame.encode_message("Hei tilbake"))
+                    #self.send(frame.text_frame("test"))
+
                     if not self.close_sent:
-                        self.send(frame.send_close_frame(StatusCode.CLOSE_NORMAL, "Test"))
+                        print("test")
+                        self.send(frame.close_frame(StatusCode.CLOSE_NORMAL, "Test"))
                         self.close_sent = True
                     #self.send(frame.encode_message("test", "0001"))
-                    #self.send(frame.send_text_frame("test"))
+                    #self.send(frame.text_frame("test"))
                 else:
                     received_headers = received_bytes.decode()
                     if Utilities.check_correct_handshake(received_headers):
