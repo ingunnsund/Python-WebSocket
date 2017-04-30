@@ -22,6 +22,7 @@
 from websocket_lib.exceptions import FrameNotMaskedException
 from websocket_lib.status_code import StatusCode
 
+
 class Frames(object):
 
     def close_frame(self, status_code, reason=""):
