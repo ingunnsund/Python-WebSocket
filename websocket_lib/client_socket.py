@@ -2,6 +2,7 @@ import socket
 from threading import Thread
 
 from websocket_lib.utilities import Utilities
+from websocket_lib.frames import Frames
 
 
 class ClientSocket(Thread):
@@ -31,9 +32,10 @@ class ClientSocket(Thread):
                     break
 
                 if self.handshake_done:
-                    print("has handshaked")
-                    # TODO: do stuff with message/frames?
-                    print(received_bytes)
+                    frame = Frames()
+                    message_from_client = frame.decode_message(received_bytes)
+                    print("Message from client: ", message_from_client)
+                    self.send(frame.encode_message("Hei tilbake"))
                 else:
                     received_headers = received_bytes.decode()
                     if Utilities.check_correct_handshake(received_headers):
