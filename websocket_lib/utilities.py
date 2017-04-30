@@ -12,3 +12,28 @@ class Utilities(object):
         hash_key = sha1(total_key.encode()).digest()
         new_accept_key = b64encode(hash_key).decode()
         return new_accept_key
+
+    @staticmethod
+    def check_correct_handshake(client_handshake):
+        MINIMUM_HTTP_VERSION = 1.1  # TODO: fiks VARIABEL FOR DENNE
+        # The openning handshake must be a GET request and be at least HTTP 1.1
+        if not client_handshake.find("GET / HTTP/") >= 0:
+            return False
+        else:
+            http_version = float(client_handshake.split("GET / HTTP/")[1].split("\n")[0])
+            if not http_version >= MINIMUM_HTTP_VERSION:
+                return False
+
+        # The opening handshake must also include some HTTP headers:
+        if not client_handshake.find("Host: ") >= 0:
+            return False
+        if not client_handshake.find("Upgrade: ") >= 0:
+            # TODO: check if CONTAINING: websocket keyword
+            return False
+        if not client_handshake.find("Connection: ") >= 0:
+            return False
+        if not client_handshake.find("Sec-WebSocket-Version: 13") >= 0:
+            return False
+
+        # Returning True if all checks fails
+        return True
