@@ -16,11 +16,13 @@ class Utilities(object):
     @staticmethod
     def check_correct_handshake(client_handshake):
         MINIMUM_HTTP_VERSION = 1.1  # TODO: fiks VARIABEL FOR DENNE
-        # The openning handshake must be a GET request and be at least HTTP 1.1
-        if not client_handshake.find("GET / HTTP/") >= 0:
+        # The opening handshake must be a GET request and be at least HTTP 1.1
+        if not client_handshake.find("GET /") >= 0:
+            return False
+        if not client_handshake.find("HTTP/") >= 0:
             return False
         else:
-            http_version = float(client_handshake.split("GET / HTTP/")[1].split("\n")[0])
+            http_version = float(client_handshake.split("HTTP/")[1].split("\n")[0])
             if not http_version >= MINIMUM_HTTP_VERSION:
                 return False
 
