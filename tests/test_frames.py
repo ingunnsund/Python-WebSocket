@@ -1,6 +1,7 @@
 from unittest import TestCase
 from websocket_lib.frames import Frames
 
+
 class TestFrames(TestCase):
 
     def test_encode_message(self):

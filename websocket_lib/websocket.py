@@ -1,7 +1,6 @@
 import socket
 
 from websocket_lib.client_socket import ClientSocket
-from websocket_lib.frames import Frames
 
 
 class WebSocket(object):
@@ -34,7 +33,7 @@ class WebSocket(object):
             connection, address = listen_socket.accept()  # TODO. start thread med ny connection
             client = ClientSocket(connection)
             client.start()
-            print("Incoming client connection from: ", address)
+            print("Incoming client connection from:", address)
 
 
 web_socket = WebSocket(3001)
