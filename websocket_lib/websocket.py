@@ -23,6 +23,7 @@ class WebSocket(object):
         self.server_running = False
 
     def start_server(self):
+        print("Starting WebSocket server...")
         listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listen_socket.bind((self.IP_ADDRESS, self.port_number))
         listen_socket.listen(self.backlog)
@@ -36,5 +37,4 @@ class WebSocket(object):
 
 
 web_socket = WebSocket(3001)
-print("Starting WebSocket server...")
 web_socket.start_server()
