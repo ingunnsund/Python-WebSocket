@@ -24,10 +24,12 @@ class WebSocket(object):
         listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listen_socket.bind((self.IP_ADDRESS, self.port_number))
         listen_socket.listen(self.backlog)
+        print("WebSocket server running at: {}:{}...".format(self.IP_ADDRESS, self.port_number))
 
         while self.server_running:
             connection, address = listen_socket.accept()  # TODO. start thread med ny connection
             client = ClientSocket(connection)
+            print("Incoming client connection from: ", address)
 
             try:
                 received_bytes = client.receive(self.BUFFER_SIZE)
@@ -100,4 +102,3 @@ class WebSocket(object):
 web_socket = WebSocket(3001)
 print("Starting WebSocket server...")
 web_socket.start_server()
-print("WebSocket server running...")
