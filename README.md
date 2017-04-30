@@ -7,7 +7,9 @@ A Python WebSocket library
 
 ## Installation
 
-## Usage and Code Examples
+## Usage
+
+See [code example](example)
 
 ## Dependencies
 
