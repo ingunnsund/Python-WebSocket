@@ -6,8 +6,8 @@ class TestFrames(TestCase):
     def test_encode_message(self):
         frames = Frames()
         expected_result = b'\x81\x05Hello'
-        self.assertEqual(frames.encode_message("Hello"), expected_result)
-        self.assertNotEqual(frames.encode_message("Hei"), expected_result)
+        self.assertEqual(frames.encode_message("Hello", "0001"), expected_result)
+        self.assertNotEqual(frames.encode_message("Hei", "0001"), expected_result)
 
     def test_decode_message(self):
         frames = Frames()
