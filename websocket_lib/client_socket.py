@@ -3,6 +3,7 @@ from threading import Thread
 
 from websocket_lib.utilities import Utilities
 from websocket_lib.frames import Frames
+from websocket_lib.status_code import StatusCode
 
 
 class ClientSocket(Thread):
@@ -18,6 +19,7 @@ class ClientSocket(Thread):
                                        + "<html><body>\r\n"
                                        + "<pre>Upgrade Required</pre>\r\n"
                                        + "</body></head>\r\n\r\n")
+    close_sent = False
 
     def __init__(self, socket):
         super().__init__()
@@ -36,6 +38,12 @@ class ClientSocket(Thread):
                     message_from_client = frame.decode_message(received_bytes)
                     print("Message from client: ", message_from_client)
                     self.send(frame.encode_message("Hei tilbake"))
+                    #self.send(frame.send_text_frame("test"))
+                    if not self.close_sent:
+                        self.send(frame.send_close_frame(StatusCode.CLOSE_NORMAL, "Test"))
+                        self.close_sent = True
+                    #self.send(frame.encode_message("test", "0001"))
+                    #self.send(frame.send_text_frame("test"))
                 else:
                     received_headers = received_bytes.decode()
                     if Utilities.check_correct_handshake(received_headers):
