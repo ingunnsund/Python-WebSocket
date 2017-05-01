@@ -18,7 +18,9 @@ $(document).ready(function() {
 
     webSocket.onmessage = (event) => {
         console.log("You received a message");
-        alert(event.data)
+
+        var newElement = '<p>' + event.data + '</p>';
+        $("#messages").append(newElement)
     }
 
     webSocket.onclose = (message) => {

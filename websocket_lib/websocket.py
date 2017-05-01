@@ -28,6 +28,7 @@ class WebSocket(Thread):
             connection, address = listen_socket.accept()  # TODO. start thread med ny connection
             client = ClientSocket(connection, self)
             client.start()
+            self.clients.append(client) # TODO: add remove from array
             self.on_connection(client)
             print("Incoming client connection from:", address)
 
@@ -40,8 +41,6 @@ class WebSocket(Thread):
         # TODO: close all sockets?
 
     def on_connection(self, new_client):
-        self.clients.append(new_client)
-        # TODO: Add more ?
         raise NotImplementedError("Use websocket..class")
 
     def on_message(self, new_message):
