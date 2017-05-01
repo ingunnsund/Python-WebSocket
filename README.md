@@ -4,16 +4,26 @@ A Python WebSocket library
 
 
 ## Features
+- Supports handshake
+- Multiple clients with threads
+- Supports small messages in text or binary
+  - fragmentation? comp^
+- Ping/Pong
+- Close with status and reason
+- Extentions ?
+- WSS ? 
+- Timeout ?
 
 ## Installation
 
 ## Usage
 
-See [code example](example)
+For example with chat see [code example](example)
 
 ## Dependencies
 
 ## Testing
+For unittests see [tests](tests) 
 
 ## License 
 MIT License: Copyright © 2017 Ingunn Sund and Knut Kirkhorn
