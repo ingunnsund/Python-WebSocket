@@ -18,11 +18,12 @@ A Python WebSocket library
 
 ## Usage
 
-See [code example](example)
+For example with chat see [code example](example)
 
 ## Dependencies
 
 ## Testing
+For unittests see [tests](tests) 
 
 ## License 
 MIT License: Copyright © 2017 Ingunn Sund and Knut Kirkhorn
