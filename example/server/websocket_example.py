@@ -17,7 +17,7 @@ class WebSocketExample(WebSocket):
         super().__init__(self.ip_address, self.port_number, self.backlog)
 
     def on_connection(self, new_client):
-        print("New incoming client connection")
+        print("New incoming client connection from:", new_client.address)
 
     def on_error(self):
         print("Client error")

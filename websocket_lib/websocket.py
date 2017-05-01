@@ -26,11 +26,10 @@ class WebSocket(Thread):
 
         while self.server_running:
             connection, address = listen_socket.accept()  # TODO. start thread med ny connection
-            client = ClientSocket(connection, self)
+            client = ClientSocket(connection, address, self)
             client.start()
             self.clients.append(client) # TODO: add remove from array
             self.on_connection(client)
-            print("Incoming client connection from:", address)
 
     def start_server(self):
         self.start()
