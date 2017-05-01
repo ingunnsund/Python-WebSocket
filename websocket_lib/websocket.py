@@ -12,6 +12,7 @@ class WebSocket(Thread):
         self.ip_address = ip_address
         self.port_number = port_number
         self.backlog = backlog
+        self.clients = []
         #WSS
         #PROXY
         #THREADS
@@ -25,8 +26,10 @@ class WebSocket(Thread):
 
         while self.server_running:
             connection, address = listen_socket.accept()  # TODO. start thread med ny connection
-            client = ClientSocket(connection)
+            client = ClientSocket(connection, self)
             client.start()
+            self.clients.append(client) # TODO: add remove from array
+            self.on_connection(client)
             print("Incoming client connection from:", address)
 
     def start_server(self):
@@ -37,18 +40,19 @@ class WebSocket(Thread):
         # TODO: stop thread?
         # TODO: close all sockets?
 
-    def on_connection(self):
+    def on_connection(self, new_client):
         raise NotImplementedError("Use websocket..class")
 
-    def on_message(self):
+    def on_message(self, new_message):
         raise NotImplementedError()
 
-    def on_close(self):
+    def on_close(self, client_closed):
+        # TODO: status code/reason?
         raise NotImplementedError()
 
     def on_error(self):
         raise NotImplementedError()
 
 
-web_socket = WebSocket("127.0.0.1", 3001)
-web_socket.start_server()
+#web_socket = WebSocket("127.0.0.1", 3001)
+#web_socket.start_server()

@@ -12,17 +12,23 @@ $(document).ready(function() {
 
     webSocket.onopen = (message) => {
         console.log("Connection is open");
-        console.log(message);
+        //console.log(message);
         webSocket.send("This is a test message");
     };
 
     webSocket.onmessage = (event) => {
         console.log("You received a message");
-        alert(event.data)
+
+        var newElement = '<p>' + event.data + '</p>';
+        $("#messages").append(newElement)
     };
 
     webSocket.onclose = (message) => {
         console.log("Connection is closed");
         console.log(message);
     };
+
+    $("#send-message").click(function() {
+        webSocket.send($("#input-text").val());
+    });
 });

@@ -32,16 +32,16 @@ class Frames(object):
 
         if opcode == Opcode.CONNECTION_CLOSE_FRAME:
             if status_code is None:
-                return self.encode_message(opcode.value, message, status_code)
+                return self.__encode_message(opcode.value, message, status_code)
             else:
                 if not isinstance(status_code, StatusCode):
                     raise TypeError('status_code must be an instance of StatusCode Enum')
                 message = str(str(status_code.name) + " " + message)
-                return self.encode_message(opcode, message, status_code)
-        return self.encode_message(opcode, message, status_code)
+                return self.__encode_message(opcode, message, status_code)
+        return self.__encode_message(opcode, message, status_code)
 
     # Encode message from server
-    def encode_message(self, opcode, message, status_code):
+    def __encode_message(self, opcode, message, status_code):
         fin = 128
         rsv1 = 0
         rsv2 = 0
@@ -82,8 +82,6 @@ class Frames(object):
         return byte_list
 
     # TODO: 0x37 0xfa 0x21 0x3d 0x7f 0x9f 0x4d -> \x37 osv
-
-
     # Decode message from client
     def decode_message(self, message):
         try:
@@ -118,9 +116,9 @@ class Frames(object):
             if message[1] == 127:
                 mask_start = 10
 
-
             data_start = mask_start + 4
-            masks = message[mask_start:data_start] #[m for m in message[mask_start:data_start]]
+            # [m for m in message[mask_start:data_start]]
+            masks = message[mask_start:data_start]
 
             j = 0
             while data_start < len(message):
