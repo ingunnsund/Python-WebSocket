@@ -12,7 +12,7 @@ $(document).ready(function() {
 
     webSocket.onopen = (message) => {
         console.log("Connection is open");
-        console.log(message);
+        //console.log(message);
         webSocket.send("This is a test message");
     }
 
