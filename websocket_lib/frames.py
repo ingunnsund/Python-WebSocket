@@ -21,6 +21,7 @@
 
 from websocket_lib.exceptions import FrameNotMaskedException
 from websocket_lib.status_code import StatusCode
+from websocket_lib.opcode import Opcode
 
 
 class Frames(object):
@@ -91,15 +92,34 @@ class Frames(object):
         byte_list = byte_list + message_bytes
         return byte_list
 
+    # TODO: 0x37 0xfa 0x21 0x3d 0x7f 0x9f 0x4d -> \x37 osv
     # Decode message from client
     def decode_message(self, message):
         try:
             masked = (int(message[1]))
-
             if masked <= 127: #TODO: test this
-                print("errorrrr")
+                print("Frame from client is not masked")
                 raise FrameNotMaskedException
 
+            first_byte = int(message[0])
+
+            if first_byte < 128: # FIN = 0
+                print("Not fin") #TODO: legg inn fragmented frames
+                opcode = -1
+            else:
+                if first_byte <= 143: # RSV1 = RSV2 = RSV3 = 0
+                    opcode = first_byte-128
+                    print(opcode)
+                    opcode = Opcode(opcode)
+                    if not isinstance(opcode, Opcode):
+                        raise TypeError('opcode must be an instance of Opcode Enum')
+
+                else:
+                    print("RSV1, RSV2 eller RSV3 er lik 1")
+                    opcode = -2
+
+
+            print(bin(message[0]))
             decoded_message = []
             mask_start = 2
             if message[1] == 126:
@@ -117,9 +137,11 @@ class Frames(object):
                 data_start += 1
                 j += 1
 
-            return ''.join(decoded_message) #TODO: add extra return value
+            return ''.join(decoded_message), opcode
         except FrameNotMaskedException as e:
-            print("frame exc") #TODO: print exception
-            # TODO: The server MUST close the connection upon receiving a
-            # TODO: frame that is not masked.  In this case, a server MAY send a Close
-            # TODO: frame with a status code of 1002 (protocol error)
+            print("FrameNotMaskedException: ")
+            print(e)
+            return e, None
+
+
+#TODO: exept. for non cont frame if fin = 0

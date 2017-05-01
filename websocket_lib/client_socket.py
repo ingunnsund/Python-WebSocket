@@ -49,6 +49,11 @@ class ClientSocket(Thread):
                         ##self.close_sent = True
                     #self.send(frame.encode_message("test", "0001"))
                     #self.send(frame.text_frame("test"))
+
+
+                    #TODO: if message from client = not masked -> decode_message will return FrameNotMaskedException, None
+                    #TODO: ^ send close frame with status code: 1002 PROTOCOL_ERROR and close connection
+                    #TODO: try/catch?
                 else:
                     received_headers = received_bytes.decode()
                     if Utilities.check_correct_handshake(received_headers):
