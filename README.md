@@ -7,7 +7,7 @@ A Python WebSocket library
 - Supports handshake
 - Multiple clients with threads
 - Supports small messages in text or binary
-- fragmentation? comp^
+  - fragmentation? comp^
 - Ping/Pong
 - Close with status and reason
 - Extentions ?
