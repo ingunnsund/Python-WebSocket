@@ -23,7 +23,7 @@ For example with chat see [code example](example)
 ## Dependencies
 
 ## Testing
-See [unittests](tests) and [Travis CI](https://travis-ci.com/ingunnsund/Python-WebSocket)
+See [unit tests](tests) and [Travis CI](https://travis-ci.com/ingunnsund/Python-WebSocket)
 
 ## License 
 MIT License: Copyright © 2017 Ingunn Sund and Knut Kirkhorn
