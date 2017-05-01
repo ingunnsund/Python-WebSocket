@@ -21,9 +21,10 @@ class ClientSocket(Thread):
                                        + "</body></head>\r\n\r\n")
     close_sent = False
 
-    def __init__(self, socket):
+    def __init__(self, socket, websocket):
         super().__init__()
         self.socket = socket
+        self.websocket = websocket
 
     def run(self):
         # Change this
@@ -37,6 +38,7 @@ class ClientSocket(Thread):
                     frame = Frames()
                     message_from_client = frame.decode_message(received_bytes)
                     print("Message from client: ", message_from_client)
+                    self.websocket.on_message(message_from_client)
                     #self.send(frame.encode_message("Hei tilbake"))
                     #self.send(frame.text_frame("test"))
 
@@ -72,6 +74,7 @@ class ClientSocket(Thread):
         self.socket.send(message)
 
     def close(self):
+        self.websocket.on_close(self) # TODO: check what line is on top?
         self.socket.close()
 
     def do_handshake(self, sec_websocket_key):

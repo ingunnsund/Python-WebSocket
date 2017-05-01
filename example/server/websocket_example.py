@@ -8,9 +8,6 @@ ip_address = "127.0.0.1"
 port_number = 3001
 backlog = 5
 
-#web_socket = WebSocket(ip_address, port_number, backlog)
-#web_socket.start_server()
-
 
 class WebSocketExample(WebSocket):
 
@@ -23,11 +20,14 @@ class WebSocketExample(WebSocket):
     def on_error(self):
         print("Client error")
 
-    def on_message(self):
-        print("Received a message")
+    def on_message(self, new_message):
+        print("Received a message: ", new_message)
+        for client in self.clients:
+            #client
+            print(client)
 
-    def on_close(self):
-        print("Client closed")
+    def on_close(self, client_closed):
+        print("Client closed: ", client_closed)
 
 wsExample = WebSocketExample()
 wsExample.start_server()

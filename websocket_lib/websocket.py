@@ -26,7 +26,7 @@ class WebSocket(Thread):
 
         while self.server_running:
             connection, address = listen_socket.accept()  # TODO. start thread med ny connection
-            client = ClientSocket(connection)
+            client = ClientSocket(connection, self)
             client.start()
             self.on_connection(client)
             print("Incoming client connection from:", address)
@@ -44,10 +44,11 @@ class WebSocket(Thread):
         # TODO: Add more ?
         raise NotImplementedError("Use websocket..class")
 
-    def on_message(self):
+    def on_message(self, new_message):
         raise NotImplementedError()
 
-    def on_close(self):
+    def on_close(self, client_closed):
+        # TODO: status code/reason?
         raise NotImplementedError()
 
     def on_error(self):
