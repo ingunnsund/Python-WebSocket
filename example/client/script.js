@@ -25,4 +25,8 @@ $(document).ready(function() {
         console.log("Connection is closed")
         console.log(message);
     }
+
+    $("#send-message").click(function() {
+        webSocket.send($("#input-text").val());
+    });
 });

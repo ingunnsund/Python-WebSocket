@@ -42,8 +42,9 @@ class ClientSocket(Thread):
 
                     if not self.close_sent:
                         print("test")
-                        self.send(frame.close_frame(StatusCode.CLOSE_NORMAL, "Test"))
-                        self.close_sent = True
+                        #self.send(frame.close_frame(StatusCode.CLOSE_NORMAL, "Test"))
+                        ##self.send(frame.close_frame(StatusCode.CLOSE_GOING_AWAY, "Test"))
+                        ##self.close_sent = True
                     #self.send(frame.encode_message("test", "0001"))
                     #self.send(frame.text_frame("test"))
                 else:
