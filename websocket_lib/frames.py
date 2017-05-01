@@ -31,7 +31,8 @@ class Frames(object):
         if not isinstance(status_code, StatusCode):
             raise TypeError('status_code must be an instance of StatusCode Enum')
 
-        message = str(str(status_code.name) + " Reason: " + reason)
+        #message = str(str(status_code.name) + " Reason: " + reason)
+        message = reason
         return self.encode_message(str(message), "1000", status_code.value)
 
     def continuation_frame(self, message):
@@ -51,8 +52,8 @@ class Frames(object):
 
     # Encode message from server
     def encode_message(self, message, opcode, status_code=0):
-        if len(message) == 0:
-            return -1
+        #if len(message) == 0: #TODO: FIX THIS
+        #    return -1
         fin = "1"
         rsv1 = "0"
         rsv2 = "0"
@@ -71,7 +72,7 @@ class Frames(object):
         if message_length <= 125:
             byte_list.append(message_length)
 
-        elif message_length >= 126 and message_length <= 65535:
+        elif 126 <= message_length <= 65535:
             byte_list.append(126)
             byte_list.append((message_length >> 8) & 255)
             byte_list.append(message_length & 255)
@@ -92,8 +93,6 @@ class Frames(object):
         return byte_list
 
     # TODO: 0x37 0xfa 0x21 0x3d 0x7f 0x9f 0x4d -> \x37 osv
-
-
     # Decode message from client
     def decode_message(self, message):
         try:
@@ -128,9 +127,9 @@ class Frames(object):
             if message[1] == 127:
                 mask_start = 10
 
-
             data_start = mask_start + 4
-            masks = message[mask_start:data_start] #[m for m in message[mask_start:data_start]]
+            # [m for m in message[mask_start:data_start]]
+            masks = message[mask_start:data_start]
 
             j = 0
             while data_start < len(message):
