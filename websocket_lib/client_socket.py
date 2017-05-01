@@ -4,6 +4,7 @@ from threading import Thread
 from websocket_lib.utilities import Utilities
 from websocket_lib.frames import Frames
 from websocket_lib.status_code import StatusCode
+from websocket_lib.opcode import Opcode
 
 
 class ClientSocket(Thread):
@@ -40,12 +41,14 @@ class ClientSocket(Thread):
                     #self.send(frame.encode_message("Hei tilbake"))
                     #self.send(frame.text_frame("test"))
 
+
+
                     if not self.close_sent:
                         print("test")
-                        self.send(frame.close_frame(StatusCode.CLOSE_NORMAL, "Test"))
+                        self.send(frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Test", StatusCode.CLOSE_GOING_AWAY))
                         self.close_sent = True
                     #self.send(frame.encode_message("test", "0001"))
-                    #self.send(frame.text_frame("test"))
+                    #self.send(frame.encode_frame(Opcode.TEXT_FRAME, "Test knuti"))
 
 
                     #TODO: if message from client = not masked -> decode_message will return FrameNotMaskedException, None

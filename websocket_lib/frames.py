@@ -26,52 +26,42 @@ from websocket_lib.opcode import Opcode
 
 class Frames(object):
 
-    def close_frame(self, status_code, reason=""):
-        # Reason example: endpoint shutting down, endpoint recieved a frame too large, endpoint recieved a frame that does not conform to the format expected
-        if not isinstance(status_code, StatusCode):
+    def encode_frame(self, opcode, message="", status_code=None):
+        if not isinstance(opcode, Opcode):
             raise TypeError('status_code must be an instance of StatusCode Enum')
 
-        message = str(str(status_code.name) + " Reason: " + reason)
-        return self.encode_message(str(message), "1000", status_code.value)
-
-    def continuation_frame(self, message):
-        return self.encode_message(message, "0000")
-
-    def binary_frame(self, message):
-        return self.encode_message(message, "0010")
-
-    def text_frame(self, message):
-        return self.encode_message(message, "0001")
-
-    def ping_frame(self, message):
-        return self.encode_message(message, "1001")
-
-    def pong_frame(self, message):
-        return self.encode_message(message, "1010")
+        if opcode == Opcode.CONNECTION_CLOSE_FRAME:
+            if status_code is None:
+                return self.encode_message(opcode.value, message, status_code)
+            else:
+                if not isinstance(status_code, StatusCode):
+                    raise TypeError('status_code must be an instance of StatusCode Enum')
+                message = str(str(status_code.name) + " " + message)
+                return self.encode_message(opcode, message, status_code)
+        return self.encode_message(opcode, message, status_code)
 
     # Encode message from server
-    def encode_message(self, message, opcode, status_code=0):
-        if len(message) == 0:
-            return -1
-        fin = "1"
-        rsv1 = "0"
-        rsv2 = "0"
-        rsv3 = "0"
+    def encode_message(self, opcode, message, status_code):
+        fin = 128
+        rsv1 = 0
+        rsv2 = 0
+        rsv3 = 0
         byte_list = []
-        if not status_code == 0:
-            #test = bytes(int(status_code))
-            message_bytes = status_code.to_bytes(2, byteorder='big') + bytes(message, "ascii")
-            print(status_code.to_bytes(2, byteorder='big'))
-            print(message_bytes)
+        if not (status_code is None):
+            #message_bytes = b'1001' + bytes(message, "ascii")
+            #message_bytes = b'0000001111101001' + bytes(message, "ascii")
+            message_bytes = 0x000003E9.to_bytes(2, byteorder='big') + bytes(message, "ascii")
+            print(status_code.value.to_bytes(2, byteorder='big'))
         else:
             message_bytes = bytes(message, "ascii")
+
         message_length = len(message_bytes)
-        byte_list.append((int(fin + rsv1 + rsv2 + rsv3 + opcode, 2)))
+        byte_list.append(fin + rsv1 + rsv2 + rsv3 + opcode.value)
 
         if message_length <= 125:
             byte_list.append(message_length)
 
-        elif message_length >= 126 and message_length <= 65535:
+        elif 126 <= message_length <= 65535:
             byte_list.append(126)
             byte_list.append((message_length >> 8) & 255)
             byte_list.append(message_length & 255)
