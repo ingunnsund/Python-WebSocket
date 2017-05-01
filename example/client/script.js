@@ -8,21 +8,21 @@ $(document).ready(function() {
     webSocket.onerror = (error) => {
         console.log("Error");
         console.log(error);
-    }
+    };
 
     webSocket.onopen = (message) => {
         console.log("Connection is open");
         console.log(message);
         webSocket.send("This is a test message");
-    }
+    };
 
     webSocket.onmessage = (event) => {
         console.log("You received a message");
         alert(event.data)
-    }
+    };
 
     webSocket.onclose = (message) => {
         console.log("Connection is closed");
         console.log(message);
-    }
+    };
 });
