@@ -3,11 +3,12 @@ from base64 import b64encode
 
 
 class Utilities(object):
+    GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+    MINIMUM_HTTP_VERSION = 1.1
 
     @staticmethod
     def make_accept_key(sec_key):
-        GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-        total_key = sec_key + GUID
+        total_key = sec_key + Utilities.GUID
 
         hash_key = sha1(total_key.encode()).digest()
         new_accept_key = b64encode(hash_key).decode()
@@ -15,7 +16,6 @@ class Utilities(object):
 
     @staticmethod
     def check_correct_handshake(client_handshake):
-        MINIMUM_HTTP_VERSION = 1.1  # TODO: fiks VARIABEL FOR DENNE
         # The opening handshake must be a GET request and be at least HTTP 1.1
         if not client_handshake.find("GET /") >= 0:
             return False
@@ -23,7 +23,7 @@ class Utilities(object):
             return False
         else:
             http_version = float(client_handshake.split("HTTP/")[1].split("\n")[0])
-            if not http_version >= MINIMUM_HTTP_VERSION:
+            if not http_version >= Utilities.MINIMUM_HTTP_VERSION:
                 return False
 
         # The opening handshake must also include some HTTP headers:

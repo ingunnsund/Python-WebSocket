@@ -3,6 +3,7 @@ from unittest import TestCase
 from websocket_lib.frames import Frames
 from websocket_lib.opcode import Opcode
 
+
 class TestFrames(TestCase):
 
 

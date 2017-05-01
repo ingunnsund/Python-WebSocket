@@ -39,6 +39,7 @@ class ClientSocket(Thread):
                     print("Message from client: ", message_from_client)
                     #self.send(frame.encode_message("Hei tilbake"))
                     #self.send(frame.text_frame("test"))
+
                     if not self.close_sent:
                         print("test")
                         self.send(frame.close_frame(StatusCode.CLOSE_NORMAL, "Test"))
@@ -65,6 +66,8 @@ class ClientSocket(Thread):
             except socket.error as e:
                 print("Error: ")
                 # TODO: print e?
+                # TODO: Check type of error and then check if it is needed to close the client
+                self.close()
 
     def receive(self, buffer_size):
         return self.socket.recv(buffer_size)
