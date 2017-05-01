@@ -41,6 +41,7 @@ class ClientSocket(Thread):
 
                     #message_from_client[0] = message and [1] = opcode of the message
                     #TODO: check if message is a MESSAGE or a ping/pong
+                    #print(message_from_client)
                     self.websocket.on_message(message_from_client[0])
 
                     #TODO: if ping from client -> send pong, if ping(client) and close(client) -> do not send pong, send close
@@ -67,7 +68,10 @@ class ClientSocket(Thread):
                     else:
                         self.send(self.NOT_CORRECT_HANDSHAKE)
                         print("The request from the client is not a correct handshake")
+                        self.state = State.CLOSED
+                        # TODO: check if correct
                         self.close()
+                        self.websocket.clients.remove(self)
                 elif self.state == State.CLOSING:
                     print("CLOSING")
 
@@ -76,12 +80,16 @@ class ClientSocket(Thread):
                 print("Error: ")
                 # TODO: print e?
                 # TODO: Check type of error and then check if it is needed to close the client
+                self.state = State.CLOSED
                 self.close()
 
     def receive(self, buffer_size):
         return self.socket.recv(buffer_size)
 
     def send(self, message):
+        
+
+    def __send(self, message):
         self.socket.send(message)
 
     def close(self):
