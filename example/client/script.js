@@ -8,25 +8,25 @@ $(document).ready(function() {
     webSocket.onerror = (error) => {
         console.log("Error");
         console.log(error);
-    }
+    };
 
     webSocket.onopen = (message) => {
         console.log("Connection is open");
         //console.log(message);
         webSocket.send("This is a test message");
-    }
+    };
 
     webSocket.onmessage = (event) => {
         console.log("You received a message");
 
         var newElement = '<p>' + event.data + '</p>';
         $("#messages").append(newElement)
-    }
+    };
 
     webSocket.onclose = (message) => {
         console.log("Connection is closed");
         console.log(message);
-    }
+    };
 
     $("#send-message").click(function() {
         webSocket.send($("#input-text").val());
