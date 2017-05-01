@@ -3,10 +3,10 @@
  */
 $(document).ready(function() {
     var webSocket = new WebSocket("ws://localhost:3001");
-    console.log("Connecting to server...")
+    console.log("Connecting to server...");
 
     webSocket.onerror = (error) => {
-        console.log("Error")
+        console.log("Error");
         console.log(error);
     }
 
@@ -21,7 +21,7 @@ $(document).ready(function() {
     }
 
     webSocket.onclose = (message) => {
-        console.log("Connection is closed")
+        console.log("Connection is closed");
         console.log(message);
     }
 });
