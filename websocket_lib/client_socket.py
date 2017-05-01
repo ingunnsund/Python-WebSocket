@@ -4,6 +4,7 @@ from threading import Thread
 from websocket_lib.utilities import Utilities
 from websocket_lib.frames import Frames
 from websocket_lib.status_code import StatusCode
+from websocket_lib.opcode import Opcode
 from websocket_lib.state import State
 
 
@@ -37,6 +38,7 @@ class ClientSocket(Thread):
                 if self.state == State.OPEN:
                     frame = Frames()
                     message_from_client = frame.decode_message(received_bytes)
+
                     #message_from_client[0] = message and [1] = opcode of the message
                     #TODO: check if message is a MESSAGE or a ping/pong
                     self.websocket.on_message(message_from_client[0])

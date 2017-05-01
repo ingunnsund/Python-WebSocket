@@ -6,12 +6,11 @@ from websocket_lib.opcode import Opcode
 
 class TestFrames(TestCase):
 
-
-    def test_encode_message(self):
+    def test_encode_text_frame(self):
         frames = Frames()
         expected_result = b'\x81\x05Hello'
-        self.assertEqual(frames.encode_message("Hello", "0001"), expected_result)
-        self.assertNotEqual(frames.encode_message("Hei", "0001"), expected_result)
+        self.assertEqual(frames.encode_frame(Opcode.TEXT_FRAME, "Hello"), expected_result)
+        self.assertNotEqual(frames.encode_frame(Opcode.TEXT_FRAME, "Hei"), expected_result)
 
     def test_decode_text_frame(self):
         """
@@ -32,11 +31,6 @@ class TestFrames(TestCase):
         # Test for result2
         self.assertNotEqual(result2_message, expected_result_message)
         self.assertEqual(result2_opcode, expected_result_opcode)
-
-    def test_decode_ping_frame(self):
-        self.assertTrue(True, True) #TODO: write test
-
-
 
     def test_decode_pong_frame(self):
         """
@@ -59,8 +53,14 @@ class TestFrames(TestCase):
     def test_decode_close_frame(self):
         self.assertTrue(True, True) #TODO: write test
 
-    def test_decode_unmasked_message(self):
-        self.assertTrue(True, True) #TODO: write test
+    def test_decode_unmasked_frame(self):
+        """
+        Test if attempt to decode unmasked frame results in exception
+        :return: 
+        """
+        frames = Frames()
+        result = frames.decode_message(b'\x81\x05Hello')
+        self.failureException(result)
 
     def test_decode_fragmented_frame(self):
         self.assertTrue(True, True) #TODO: write test
