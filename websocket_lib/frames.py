@@ -28,8 +28,8 @@ from websocket_lib.opcode import Opcode
 
 class Frames(object):
 
-    def __init__(self, max_lenght_frame=65535, rsv1_extension=False, rsv2_extension=False, rsv3_extension=False):
-        self.max_length_frame = max_lenght_frame
+    def __init__(self, max_length_frame=65535, rsv1_extension=False, rsv2_extension=False, rsv3_extension=False):
+        self.max_length_frame = max_length_frame
         # TODO: exception for too long max length
         self.rsv1_extension = rsv1_extension
         self.rsv2_extension = rsv2_extension
@@ -53,6 +53,8 @@ class Frames(object):
             encoded_frames = []
             message_length = len(message)
 
+            print(message_length)
+            print(self.max_length_frame)
             if message_length > self.max_length_frame:               # Check if the frame should be fragmented
                 fin = 0                                         # FIN = 0
                 if opcode == Opcode.CONNECTION_CLOSE_FRAME:     # Close frames can not ble fragmented
@@ -77,9 +79,9 @@ class Frames(object):
                         length_used = message_length
 
                 return encoded_frames
-
             else:
                 fin = 128                                       # Not a fragmented frame, FIN = 1
+
             if opcode == Opcode.CONNECTION_CLOSE_FRAME:         # if the frame is a close frame
                 if status_code is None:                         # if there is no status code
                     encoded_frames.append(self.__encode_message(opcode, message, status_code, fin, rsv1, rsv2, rsv3))
@@ -111,6 +113,8 @@ class Frames(object):
                 raise ExtensionException("rsv1 can not be 1 if no extension is added")
             if (not rsv3 == 0) and self.rsv3_extension == False:
                 raise ExtensionException("rsv1 can not be 1 if no extension is added")
+
+            return True
         except ExtensionException as e:
             print("ExtensionException")
             print(e)
@@ -179,50 +183,51 @@ class Frames(object):
         """
         Function for decoding messages from client to server
         :param message: bytes recieved from client
-        :return: 
+        :return: the function returns the decoded message, opcode and fin
         """
         try:
             masked = (int(message[1]))
-            if masked <= 127: #TODO: test this
+            if masked < 128:                                        # Check if incoming message is masked
                 print("Frame from client is not masked")
                 raise FrameNotMaskedException
 
             first_byte = int(message[0])
 
-            if first_byte < 128: # FIN = 0
-                print("Not fin") #TODO: legg inn fragmented frames
-                opcode = -1
+            if first_byte < 128:                                    # Check value of FIN and set fin
+                fin = False
             else:
-                if first_byte <= 143: # RSV1 = RSV2 = RSV3 = 0
-                    opcode = first_byte-128
-                    opcode = Opcode(opcode)
-                    if not isinstance(opcode, Opcode):
-                        raise TypeError('opcode must be an instance of Opcode Enum')
+                fin = True
 
-                else:
-                    print("RSV1, RSV2 eller RSV3 er lik 1")
-                    opcode = -2
+            opcode = first_byte%16                                  # Find opcode from the first byte
+            opcode = Opcode(opcode)
+            if not isinstance(opcode, Opcode):                      # Check if found opcode is a valid opcode
+                raise TypeError('opcode must be an instance of Opcode Enum')
 
             decoded_message = []
-            mask_start = 2
+            mask_start = 2                                          # Check where mask key starts
             if message[1] == 126:
                 mask_start = 4
             if message[1] == 127:
                 mask_start = 10
-
             data_start = mask_start + 4
-            # [m for m in message[mask_start:data_start]]
-            masks = message[mask_start:data_start]
+            masks = message[mask_start:data_start]                  # Mask = mask key
 
             j = 0
-            while data_start < len(message):
+            while data_start < len(message):                        # Unmasks message and adding to the decoded message list
                 decoded_message.append(chr(message[data_start] ^ masks[j%4]))
                 data_start += 1
                 j += 1
 
-            return ''.join(decoded_message), opcode
+            return ''.join(decoded_message), opcode, fin
         except FrameNotMaskedException as e:
             print("FrameNotMaskedException: ")
             print(e)
-            return e, None
-            #TODO: exept. for non cont frame if fin = 0
+            return e, None, False
+        except ExtensionException as e:
+            print("ExtensionException: ")
+            print(e)
+            return e, None, False
+        except TypeError as e:
+            print("TypeError")
+            print(e)
+            return e, None, False
