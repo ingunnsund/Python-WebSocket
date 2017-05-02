@@ -18,7 +18,7 @@ A Python WebSocket library
   - Fragmented frames for multiplexing is implemented
 
 ## Installation
-### Clone code from github
+#### Clone code from github
 ```
 git clone https://github.com/ingunnsund/Python-WebSocket
 ```
