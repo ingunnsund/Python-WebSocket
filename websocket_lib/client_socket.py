@@ -70,6 +70,9 @@ class ClientSocket(Thread):
                     #self.send(frame.close_frame(StatusCode.CLOSE_NORMAL, "TEST"))
                     #self.state = State.CLOSING
 
+
+                    # TODO: exept. for non cont frame if fin = 0
+
                 elif self.state == State.CONNECTING:
                     # If the client is in connecting state then it first sends a handshake
                     received_headers = received_bytes.decode()
