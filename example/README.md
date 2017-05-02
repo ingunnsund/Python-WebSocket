@@ -5,6 +5,5 @@ line:
 ```
 cd server
 python websocket_example.py
-
 ```
 Then you can open the client example in the [client directory](client) in a webbrowser and see the result.
