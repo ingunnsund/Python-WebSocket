@@ -15,15 +15,36 @@ A Python WebSocket library
 - Timeout ?
 
 ## Installation
+### Clone code from github
+```
+git clone https://github.com/ingunnsund/Python-WebSocket
+```
+
+After clone is completed the library can be used like the [example code](example) or see [Usage section](https://github.com/ingunnsund/Python-WebSocket#usage)
 
 ## Usage
+This library is made easy like a interface that is only needed to be extended by the user of the library.
+It can be done like this:
+```python
+class WebSocketExample(WebSocket):
+```
+There are some methods that needs to be overrided:
+```python
+def on_connection(self, new_client):
+
+def on_error(self):
+
+def on_message(self, new_message, sender):
+
+def on_close(self, client_closed):
+```
 
 For example with chat see [code example](example)
 
 ## Dependencies
 
 ## Testing
-For unittests see [tests](tests) 
+See [unit tests](tests) and [Travis CI](https://travis-ci.com/ingunnsund/Python-WebSocket)
 
 ## License 
 MIT License: Copyright © 2017 Ingunn Sund and Knut Kirkhorn
