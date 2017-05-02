@@ -1,7 +1,5 @@
 from websocket_lib.websocket import WebSocket
-from websocket_lib.frames import Frames
 from websocket_lib.state import State
-from websocket_lib.opcode import Opcode
 
 """
 Example of usage with the web socket library
@@ -13,11 +11,15 @@ class WebSocketExample(WebSocket):
     ip_address = "127.0.0.1"
     port_number = 3001
     backlog = 5
-    #exten = "permessage-deflate"
-    #nrex = 1
+    # Timeout if no frame is sent or received after 300 seconds then the server sends a PING_FRAME to the client.
+    ping_timeout = 300            # Or use for compression extension:
+    extension = ""                # "permessage-deflate"
+    extension_number_rsv = 0      # 1
+    max_length_frame = 65535
 
     def __init__(self):
-        super().__init__(self.ip_address, self.port_number, self.backlog)#, self.exten, self.nrex)
+        super().__init__(self.ip_address, self.port_number, self.backlog, self.ping_timeout, self.max_length_frame,
+                         self.extension, self.extension_number_rsv)
 
     def on_connection(self, new_client):
         print("New incoming client connection from:", new_client.address)

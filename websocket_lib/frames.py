@@ -57,7 +57,7 @@ class Frames(object):
                 raise TypeError('status_code must be an instance of StatusCode Enum')
 
             encoded_frames = []
-            message_length = len(message) # TODO: til bytes først, deretter lengde
+            message_length = len(message)
 
             if message_length > self.max_length_frame:          # Check if the frame should be fragmented
                 fin = 0                                         # FIN = 0
@@ -184,9 +184,6 @@ class Frames(object):
         except ExtensionException as e:
             return None
 
-        # TODO: close connection hvis ex eller noe
-
-
     def decode_message(self, message):
         """
         Function for decoding messages from client to server
@@ -224,7 +221,7 @@ class Frames(object):
             while data_start < len(message):                        # Unmasks message and adding to the decoded message list
                 mess = message[data_start] ^ masks[j%4]
                 if opcode is Opcode.BINARY_FRAME:
-                    decoded_message.append(bin(mess))
+                    decoded_message.append(bin(mess))               # Can also be chr(mess)
                 else:
                     decoded_message.append(chr(mess))
                 data_start += 1

@@ -37,8 +37,6 @@ head, body {
     padding: 8px;
 
     width: 50%;
-    /* Bigger messages overflow */
-    /* Ta bare størrelsen til meldingen */
     display: inline-block;
 }
 
@@ -94,4 +92,10 @@ head, body {
     border: 0;
     background-color: #48a3e6;
     color: white;
+    transition: ease-in-out 0.2s;
+}
+
+.blue-button:hover {
+    background-color: #4d86e6;
+    cursor: pointer;
 }

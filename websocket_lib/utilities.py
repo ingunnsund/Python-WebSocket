@@ -52,7 +52,6 @@ class Utilities(object):
         if not client_handshake.find("Host: ") >= 0:
             return False
         if not client_handshake.find("Upgrade: ") >= 0:
-            # TODO: check if CONTAINING: websocket keyword
             return False
         if not client_handshake.find("Connection: ") >= 0:
             return False

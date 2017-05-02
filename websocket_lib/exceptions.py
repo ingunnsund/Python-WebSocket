@@ -8,11 +8,14 @@ class FrameNotMaskedException(Exception):
     frame with a status code of 1002 (protocol error) 
     """
 
+
 class CloseFrameTooLongException(Exception):
     pass
 
+
 class ExtensionException(Exception):
     pass
+
 
 class TooLongMaxFrameException(Exception):
     pass
