@@ -8,7 +8,7 @@ A Python WebSocket library
 - Multiple clients with threads
 - Supports messages in text or binary  
   - With fragmented frames if message length is large enough
-  - Server <-> Client, Client1 <-> Server <-> Client2
+  - Server <-> Client and Client1 <-> Server <-> Client2
 - Possibilities for sending small files 
 - Ping and Pong
 - Close with status and reason
@@ -16,13 +16,13 @@ A Python WebSocket library
   - For example: the permessage-deflate extension needs a decompression algorithm 
 - Good error handling with custom exceptions
 - Communicates with a webbrowser via JavaScript
+- Timeout with ping and pong
 
 ### Future Implementation
 - WSS (WebSocket Secure)
 - Better extension solution
 - Fragmented frames for sending a message that is of unknown size without having to buffer the message
   - Fragmented frames for multiplexing is implemented
-- Timeout
 - Send large files
 
 ## Installation
