@@ -42,12 +42,17 @@ class WebSocketExample(WebSocket):
 There are some methods that needs to be overrided:
 ```python
 def on_connection(self, new_client):
+  #Method that is called each time a new client connects to the server.
 
 def on_error(self, error_message):
+  #Method that is called each time an error occours with a client.
 
 def on_message(self, new_message, sender):
+  #Method that is called each time a message is sent to a client.
+  #The message and the sender is passed on from the abstract method.
 
 def on_close(self, client_closed):
+  #Method that is called each time a client disconnects from the server.
 ```
 
 For example with chat see [code example](example)
