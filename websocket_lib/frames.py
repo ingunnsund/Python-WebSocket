@@ -22,6 +22,7 @@
 from websocket_lib.exceptions import FrameNotMaskedException
 from websocket_lib.exceptions import CloseFrameTooLongException
 from websocket_lib.exceptions import ExtensionException
+from websocket_lib.exceptions import TooLongMaxFrameException
 from websocket_lib.status_code import StatusCode
 from websocket_lib.opcode import Opcode
 
@@ -29,11 +30,16 @@ from websocket_lib.opcode import Opcode
 class Frames(object):
 
     def __init__(self, max_length_frame=65535, rsv1_extension=False, rsv2_extension=False, rsv3_extension=False):
-        self.max_length_frame = max_length_frame
-        # TODO: exception for too long max length
-        self.rsv1_extension = rsv1_extension
-        self.rsv2_extension = rsv2_extension
-        self.rsv3_extension = rsv3_extension
+        try:
+            if max_length_frame > 16777215:           # 3 bytes
+                raise TooLongMaxFrameException("Too long max length for frame")
+            self.max_length_frame = max_length_frame
+            self.rsv1_extension = rsv1_extension
+            self.rsv2_extension = rsv2_extension
+            self.rsv3_extension = rsv3_extension
+        except TooLongMaxFrameException as e:
+            print("TooLongMaxFrameException")
+            print(e)
 
     def encode_frame(self, opcode, message="", status_code=None, rsv1=0, rsv2=0, rsv3=0):
         """
@@ -53,8 +59,6 @@ class Frames(object):
             encoded_frames = []
             message_length = len(message)
 
-            print(message_length)
-            print(self.max_length_frame)
             if message_length > self.max_length_frame:               # Check if the frame should be fragmented
                 fin = 0                                         # FIN = 0
                 if opcode == Opcode.CONNECTION_CLOSE_FRAME:     # Close frames can not ble fragmented

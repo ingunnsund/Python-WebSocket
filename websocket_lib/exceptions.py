@@ -14,3 +14,6 @@ class CloseFrameTooLongException(Exception):
 
 class ExtensionException(Exception):
     pass
+
+class TooLongMaxFrameException(Exception):
+    pass
