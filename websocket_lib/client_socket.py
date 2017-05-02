@@ -21,15 +21,15 @@ class ClientSocket(Thread):
                                        + "<pre>Upgrade Required</pre>\r\n"
                                        + "</body></head>\r\n\r\n")
 
-    def __init__(self, socket, websocket, state=State.CONNECTING):
+    def __init__(self, socket, address, websocket, state=State.CONNECTING):
         super().__init__()
         self.socket = socket
+        self.address = address
         self.websocket = websocket
         self.state = state
 
     def run(self):
-        # Change this
-        while True:
+        while not self.state == State.CLOSED:
             try:
                 received_bytes = self.receive(self.BUFFER_SIZE)
                 if not received_bytes:
@@ -37,7 +37,7 @@ class ClientSocket(Thread):
 
                 if self.state == State.OPEN:
                     frame = Frames()
-                    message_from_client = frame.decode_message(received_bytes)
+                    message_from_client, current_op_code = frame.decode_message(received_bytes)
 
                     #message = "1234567" * 10000
                     message2 = "1122334" * 20000
@@ -50,9 +50,18 @@ class ClientSocket(Thread):
                         print(frame2)
                         self.send(frame2)
                     self.state = State.TIME_WAIT
-                    #message_from_client[0] = message and [1] = opcode of the message
                     #TODO: check if message is a MESSAGE or a ping/pong
-                    self.websocket.on_message(message_from_client[0])
+                    #self.send(frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Hei", StatusCode.CLOSE_GOING_AWAY))
+                    #self.state = State.CLOSING
+
+                    if current_op_code == Opcode.CONNECTION_CLOSE_FRAME:
+                        #self.send() #TODO: send en frame med closing tilbake
+                        #self.state = State.CLOSED
+                        print("CONNECTION_CLOSED")
+                        self.close_and_remove()
+
+                    if current_op_code == Opcode.TEXT_FRAME: # or Opcode.BINARY_FRAME
+                        self.websocket.on_message(message_from_client, self)
 
                     #TODO: if ping from client -> send pong, if ping(client) and close(client) -> do not send pong, send close
                     #TODO: if ping(client) + ping(client) -> send one pong (not required, not important)
@@ -69,28 +78,37 @@ class ClientSocket(Thread):
                     #self.state = State.CLOSING
 
                 elif self.state == State.CONNECTING:
+                    # If the client is in connecting state then it first sends a handshake
                     received_headers = received_bytes.decode()
                     if Utilities.check_correct_handshake(received_headers):
                         sec_websocket_key = received_headers.split("Sec-WebSocket-Key: ")[1].split("\r\n")[0]
-
                         self.do_handshake(sec_websocket_key)
-                        # close_down = True
                     else:
                         self.send(self.NOT_CORRECT_HANDSHAKE)
                         print("The request from the client is not a correct handshake")
-                        self.close()
+                        self.close_and_remove()
                 elif self.state == State.CLOSING:
+                    #frame = Frames()
+                    #print(frame.decode_message(received_bytes))
                     print("CLOSING")
+                    #self.send(received_bytes)
 
             except socketerror as e:
                 #TODO: check om denne må bytte om navnene
                 print("Error: ")
                 # TODO: print e?
                 # TODO: Check type of error and then check if it is needed to close the client
-                self.close()
+                self.close_and_remove()
+
+    def close_and_remove(self):
+        self.state = State.CLOSED
+        self.websocket.clients.remove(self)
+        self.close()
 
     def receive(self, buffer_size):
         return self.socket.recv(buffer_size)
+
+    #def send(self, message):
 
     def send(self, message):
         self.socket.send(message)
@@ -98,7 +116,7 @@ class ClientSocket(Thread):
     def close(self):
         # TODO: check if already closed
         # TODO: check if connecting
-        self.websocket.on_close(self) # TODO: check what line is on top?
+        self.websocket.on_close(self)
         self.socket.close()
 
     def do_handshake(self, sec_websocket_key):

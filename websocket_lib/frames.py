@@ -90,8 +90,11 @@ class Frames(object):
         if not (status_code is None):
             #message_bytes = b'1001' + bytes(message, "ascii")
             #message_bytes = b'0000001111101001' + bytes(message, "ascii")
+            #message_bytes = 0x000003E9.to_bytes(2, byteorder='big') + bytes(message, "ascii")
+            #message_bytes = ((status_code.value >> 8) + (status_code.value % 256)).to_bytes(2, byteorder='big') + bytes(message, "ascii")
             message_bytes = 0x000003E9.to_bytes(2, byteorder='big') + bytes(message, "ascii")
-            print(status_code.value.to_bytes(2, byteorder='big'))
+
+            #print(status_code.value.to_bytes(2, byteorder='big'))
         else:
             message_bytes = bytes(message, "ascii")
 
@@ -140,7 +143,6 @@ class Frames(object):
             else:
                 if first_byte <= 143: # RSV1 = RSV2 = RSV3 = 0
                     opcode = first_byte-128
-                    print(opcode)
                     opcode = Opcode(opcode)
                     if not isinstance(opcode, Opcode):
                         raise TypeError('opcode must be an instance of Opcode Enum')
@@ -149,8 +151,6 @@ class Frames(object):
                     print("RSV1, RSV2 eller RSV3 er lik 1")
                     opcode = -2
 
-
-            print(bin(message[0]))
             decoded_message = []
             mask_start = 2
             if message[1] == 126:
