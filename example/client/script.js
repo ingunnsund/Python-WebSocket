@@ -1,6 +1,8 @@
 /**
  * Created by Knut on 27.04.2017.
  */
+
+
 $(document).ready(function() {
     //a websocket object and its functions for handling new messages etc.
     let webSocket = new WebSocket("ws://localhost:3001");
@@ -19,7 +21,7 @@ $(document).ready(function() {
 
     webSocket.onmessage = (event) => {
         console.log("You received a message");
-        
+
         let jsonMessage = JSON.parse(event.data);
         let username = jsonMessage.username;
         let message = jsonMessage.message;
@@ -30,9 +32,9 @@ $(document).ready(function() {
         let messageClass = "message ";
         if (username === myUsername) {
             if (username === "Anonymous") {
-                messageClass += "message-own";
-            } else {
                 messageClass += "message-others";
+            } else {
+                messageClass += "message-own";
             }
         } else {
             messageClass += "message-others";
@@ -52,7 +54,7 @@ $(document).ready(function() {
         console.log(message);
     };
 
-    let myUsername = "";
+    var myUsername = "";
     // javascript code for handling click etc.
     $("#send-message").click(()=> {
         if ($("#input-text").val() !== "") {

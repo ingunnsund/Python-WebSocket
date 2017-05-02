@@ -84,14 +84,12 @@ class ClientSocket(Thread):
 
     def do_opcode_operation(self, current_message, current_opcode, fin):
         if current_opcode == Opcode.TEXT_FRAME:  # or Opcode.BINARY_FRAME
-            print("TEXT")
             if fin is False:
                 self.message_list.append(current_message)
             else:
                 self.websocket.on_message(current_message, self)
 
         elif current_opcode == Opcode.BINARY_FRAME:
-            print("BINARY")
             if fin is False:
                 self.message_list.append(current_message)
             else:
