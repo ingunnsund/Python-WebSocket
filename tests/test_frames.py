@@ -92,9 +92,6 @@ class TestFrames(TestCase):
         self.assertNotEqual(result2_opcode, expected_result_opcode)
 
 
-    def test_decode_close_frame(self):
-        self.assertTrue(True, True) #TODO: write test
-
     def test_decode_unmasked_frame(self):
         """
         Test if attempt to decode unmasked frame results in exception
@@ -102,6 +99,3 @@ class TestFrames(TestCase):
         frames = Frames()
         result = frames.decode_message(b'\x81\x05Hello')
         self.failureException(result)
-
-    def test_decode_fragmented_frame(self):
-        self.assertTrue(True, True) #TODO: write test
