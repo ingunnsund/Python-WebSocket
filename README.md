@@ -8,7 +8,7 @@ A Python WebSocket library
 - Multiple clients with threads
 - Supports messages in text or binary  
   - With fragmented frames if message length is large enough
-  - Server -> client, client -> server, client1 -> server -> client2
+  - Server <-> Client, Client1 <-> Server <-> Client2
 - Possibilities for sending small files 
 - Ping and Pong
 - Close with status and reason
