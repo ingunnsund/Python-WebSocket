@@ -7,4 +7,3 @@ class State(Enum):
     OPEN = 3
     CLOSING = 4
     CLOSED = 5
-    # more and fix this
