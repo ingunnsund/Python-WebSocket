@@ -7,7 +7,7 @@ from websocket_lib.status_code import StatusCode
 from websocket_lib.opcode import Opcode
 from websocket_lib.state import State
 from websocket_lib.exceptions import FrameNotMaskedException
-#TODO: import all exceptions?
+# TODO: import all exceptions?
 
 
 class ClientSocket(Thread):
@@ -19,11 +19,14 @@ class ClientSocket(Thread):
         self.address = address
         self.websocket = websocket
         self.state = state
+        self.frame = Frames()
+        self.message_list = []
 
     def run(self):
         """
         Overrided method in the Thread class and run the receiving in the socket class threaded.
         """
+
         # While the state is not CLOSED, the socket receive bytes and we check the received package
         while not self.state == State.CLOSED:
             try:
@@ -33,43 +36,12 @@ class ClientSocket(Thread):
 
                 # Check what state the client is in and then choose what to do with the received data
                 if self.state == State.OPEN:
-                    frame = Frames()
-                    message_from_client, current_op_code = frame.decode_message(received_bytes)
+                    message_from_client, current_op_code, fin = self.frame.decode_message(received_bytes)
 
-
-                    #TODO: check if message is a MESSAGE or a ping/pong
-                    #self.send(frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Hei", StatusCode.CLOSE_GOING_AWAY))
-                    #self.state = State.CLOSING
-
-                    if current_op_code == Opcode.TEXT_FRAME: # or Opcode.BINARY_FRAME
-                        self.websocket.on_message(message_from_client, self)
-
-                    elif current_op_code == Opcode.BINARY_FRAME:
-                        print("BINARY_FRAME")
-
-                    elif current_op_code == Opcode.CONNECTION_CLOSE_FRAME:
-                        #self.send() #TODO: send en frame med closing tilbake
-                        #self.state = State.CLOSED
-                        print("CONNECTION_CLOSED")
-                        self.close_and_remove()
-
-                    elif current_op_code == Opcode.CONTINUATION_FRAME:
-                        print("CONTINUATION_FRAME")
-
-                    elif current_op_code == Opcode.PING_FRAME:
-                        print("PING_FRAME")
-                        self.send(frame.encode_frame(Opcode.PONG_FRAME, message_from_client))
-
-                    elif current_op_code == Opcode.PONG_FRAME:
-                        print("PONG_FRAME")
-
-                    # Send a close frame test:
-                    #self.send(frame.close_frame(StatusCode.CLOSE_NORMAL, "Test"))
-                    ##self.send(frame.close_frame(StatusCode.CLOSE_GOING_AWAY, "Test"))
-                    #self.send(frame.ping_frame("Hello"))
-                    #self.send(frame.close_frame(StatusCode.CLOSE_NORMAL, "TEST"))
-                    #self.state = State.CLOSING
-
+                    self.do_opcode_operation(message_from_client, current_op_code, fin)
+                    # TODO: check if message is a MESSAGE or a ping/pong
+                    # self.send(frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Hei", StatusCode.CLOSE_GOING_AWAY))
+                    # self.state = State.CLOSING
 
                     # TODO: exept. for non cont frame if fin = 0
 
@@ -84,23 +56,55 @@ class ClientSocket(Thread):
                         print("The request from the client is not a correct handshake")
                         self.close_and_remove()
                 elif self.state == State.CLOSING:
-                    #frame = Frames()
-                    #print(frame.decode_message(received_bytes))
-                    print("CLOSING")
-                    #self.send(received_bytes)
+                    message_from_client, current_op_code, fin = self.frame.decode_message(received_bytes)
+                    # If the client is in CLOSING state and is receiving a CLOSE frame, then it can safely close itself.
+                    if current_op_code == Opcode.CONNECTION_CLOSE_FRAME:
+                        self.close_and_remove()
 
             except socketerror as e:
-                #TODO: check om denne må bytte om navnene
+                # TODO: check om denne må bytte om navnene
                 print("Error: ")
                 # TODO: print e?
                 # TODO: Check type of error and then check if it is needed to close the client
                 self.close_and_remove()
             except FrameNotMaskedException as fnme:
-                frame = Frames()
-                self.send(frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Frame was not masked",
-                                             StatusCode.CLOSE_PROTOCOL_ERROR))
+                self.send(self.frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Frame was not masked",
+                                                  StatusCode.CLOSE_PROTOCOL_ERROR))
                 self.close_and_remove()
                 # TODO: test this and print fnme?
+
+    def do_opcode_operation(self, current_message, current_opcode, fin):
+        if current_opcode == Opcode.TEXT_FRAME:  # or Opcode.BINARY_FRAME
+            if fin is False:
+                self.message_list.append(current_message)
+            else:
+                self.websocket.on_message(current_message, self)
+
+        elif current_opcode == Opcode.BINARY_FRAME:
+            if fin is False:
+                self.message_list.append(current_message)
+            else:
+                self.websocket.on_message(current_message, self)
+
+        elif current_opcode == Opcode.CONNECTION_CLOSE_FRAME:
+            self.state = State.CLOSING
+            self.send(self.frame.encode_frame(Opcode(current_opcode), current_message))
+            self.close_and_remove()
+
+        elif current_opcode == Opcode.CONTINUATION_FRAME:
+            if fin is False:
+                self.message_list.append(current_message)
+            else:
+                self.message_list.append(current_message)
+                self.websocket.on_message(''.join(self.message_list), self)
+                self.message_list = []
+            print("CONTINUATION_FRAME")
+
+        elif current_opcode == Opcode.PING_FRAME:
+            self.send(self.frame.encode_frame(Opcode.PONG_FRAME, current_message))
+
+        elif current_opcode == Opcode.PONG_FRAME:
+            print("PONG_FRAME")
 
     def close_and_remove(self):
         """
@@ -113,7 +117,7 @@ class ClientSocket(Thread):
     def receive(self, buffer_size):
         return self.socket.recv(buffer_size)
 
-    #def send(self, message):
+    # def send(self, message):
 
     def _send_bytes(self, message_bytes):
         self.socket.send(message_bytes)
