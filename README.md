@@ -17,6 +17,21 @@ A Python WebSocket library
 ## Installation
 
 ## Usage
+This library is made easy like a interface that is only needed to be extended by the user of the library.
+It can be done like this:
+```python
+class WebSocketExample(WebSocket):
+```
+There are some methods that needs to be overrided:
+```python
+def on_connection(self, new_client):
+
+def on_error(self):
+
+def on_message(self, new_message, sender):
+
+def on_close(self, client_closed):
+```
 
 For example with chat see [code example](example)
 
