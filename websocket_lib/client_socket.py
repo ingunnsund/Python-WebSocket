@@ -29,8 +29,7 @@ class ClientSocket(Thread):
         self.state = state
 
     def run(self):
-        # Change this
-        while True: #not self.state == State.CLOSED:
+        while not self.state == State.CLOSED:
             try:
                 received_bytes = self.receive(self.BUFFER_SIZE)
                 if not received_bytes:
@@ -40,7 +39,6 @@ class ClientSocket(Thread):
                     frame = Frames()
                     message_from_client, current_op_code = frame.decode_message(received_bytes)
 
-                    #message_from_client[0] = message and [1] = opcode of the message
                     #TODO: check if message is a MESSAGE or a ping/pong
                     #self.send(frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Hei", StatusCode.CLOSE_GOING_AWAY))
                     #self.state = State.CLOSING
@@ -49,10 +47,10 @@ class ClientSocket(Thread):
                         #self.send() #TODO: send en frame med closing tilbake
                         #self.state = State.CLOSED
                         print("CONNECTION_CLOSED")
-                        self._close_and_remove()
+                        self.close_and_remove()
 
-                    if message_from_client[1] == Opcode.TEXT_FRAME: # or Opcode.BINARY_FRAME
-                        self.websocket.on_message(message_from_client[0])
+                    if current_op_code == Opcode.TEXT_FRAME: # or Opcode.BINARY_FRAME
+                        self.websocket.on_message(message_from_client, self)
 
                     #TODO: if ping from client -> send pong, if ping(client) and close(client) -> do not send pong, send close
                     #TODO: if ping(client) + ping(client) -> send one pong (not required, not important)
@@ -77,7 +75,7 @@ class ClientSocket(Thread):
                     else:
                         self.send(self.NOT_CORRECT_HANDSHAKE)
                         print("The request from the client is not a correct handshake")
-                        self._close_and_remove()
+                        self.close_and_remove()
                 elif self.state == State.CLOSING:
                     #frame = Frames()
                     #print(frame.decode_message(received_bytes))
@@ -89,9 +87,9 @@ class ClientSocket(Thread):
                 print("Error: ")
                 # TODO: print e?
                 # TODO: Check type of error and then check if it is needed to close the client
-                self._close_and_remove()
+                self.close_and_remove()
 
-    def _close_and_remove(self):
+    def close_and_remove(self):
         self.state = State.CLOSED
         self.websocket.clients.remove(self)
         self.close()
@@ -107,7 +105,7 @@ class ClientSocket(Thread):
     def close(self):
         # TODO: check if already closed
         # TODO: check if connecting
-        self.websocket.on_close(self) # TODO: check what line is on top?
+        self.websocket.on_close(self)
         self.socket.close()
 
     def do_handshake(self, sec_websocket_key):

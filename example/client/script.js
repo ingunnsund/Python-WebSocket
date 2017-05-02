@@ -21,7 +21,7 @@ $(document).ready(function() {
 
         var newElement = '<p>' + event.data + '</p>';
         $("#messages").append(newElement)
-        webSocket.close(1000);
+        //webSocket.close(1000);
     };
 
     webSocket.onclose = (message) => {

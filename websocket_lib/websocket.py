@@ -35,23 +35,32 @@ class WebSocket(Thread):
         self.start()
 
     def stop_server(self):
+        """
+        method for stopping the server, its thread and closing all client sockets  
+        """
         self.server_running = False
+        for client in self.clients:
+            client.close_and_remove()
+        self.stop()
         # TODO: stop thread?
         # TODO: close all sockets?
 
     def on_connection(self, new_client):
-        raise NotImplementedError("Use websocket..class")
+        """
+        :param new_client: is the new client connecting to the web socket server
+        """
+        raise NotImplementedError("This method is abstract and meant to be extended")
 
-    def on_message(self, new_message):
-        raise NotImplementedError()
+    def on_message(self, new_message, sender):
+        """
+        :param new_message: is the message being sent
+        :param sender: is the sender of the message (which is a ClientSocket object)
+        """
+        raise NotImplementedError("This method is abstract and meant to be extended")
 
     def on_close(self, client_closed):
         # TODO: status code/reason?
-        raise NotImplementedError()
+        raise NotImplementedError("This method is abstract and meant to be extended")
 
     def on_error(self):
-        raise NotImplementedError()
-
-
-#web_socket = WebSocket("127.0.0.1", 3001)
-#web_socket.start_server()
+        raise NotImplementedError("This method is abstract and meant to be extended")
