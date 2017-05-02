@@ -15,6 +15,12 @@ A Python WebSocket library
 - Timeout ?
 
 ## Installation
+### Clone code from github
+```
+git clone https://github.com/ingunnsund/Python-WebSocket
+```
+
+After clone is completed the library can be used like the [example code](examples) or see [Usage section](https://github.com/ingunnsund/Python-WebSocket#usage)
 
 ## Usage
 This library is made easy like a interface that is only needed to be extended by the user of the library.
