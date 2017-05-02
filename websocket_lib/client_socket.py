@@ -8,6 +8,8 @@ from websocket_lib.opcode import Opcode
 from websocket_lib.state import State
 from websocket_lib.exceptions import FrameNotMaskedException
 from websocket_lib.exceptions import ExtensionException
+from websocket_lib.exceptions import TooLongMaxFrameException
+from websocket_lib.exceptions import CloseFrameTooLongException
 
 
 class ClientSocket(Thread):
@@ -39,12 +41,9 @@ class ClientSocket(Thread):
                     message_from_client, current_op_code, fin = self.frame.decode_message(received_bytes)
 
                     self.do_opcode_operation(message_from_client, current_op_code, fin)
-                    # TODO: check if message is a MESSAGE or a ping/pong
                     # self.send(frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Hei", StatusCode.CLOSE_GOING_AWAY))
                     # self.state = State.CLOSING
-
-
-                    # TODO: exept. for non cont frame if fin = 0
+                    self.__send_frames(self.frame.encode_frame(Opcode.BINARY_FRAME, bytes([int('01010101', 2)])))
 
                 elif self.state == State.CONNECTING:
                     # If the client is in connecting state then it first sends a handshake
@@ -65,22 +64,34 @@ class ClientSocket(Thread):
             except socketerror as e:
                 print("Error: ")
                 print(e)
+                self.websocket.on_error("Socket Error")
                 self.close_and_remove()
             except FrameNotMaskedException as fnme:
                 print("FrameNotMaskedException: ")
                 print(fnme)
-                frame = Frames()
                 self.__send_frames(self.frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Frame was not masked",
                                     StatusCode.CLOSE_PROTOCOL_ERROR))
+                self.websocket.on_error("Incoming frame is not masked")
                 self.close_and_remove()
             except ExtensionException as e:
                 print("ExtensionException: ")
                 print(e)
-                frame = Frames()
                 self.__send_frames(self.frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Extension Exception",
                                     StatusCode.CLOSE_PROTOCOL_ERROR))
-
+                self.websocket.on_error("ExtensionException")
                 self.close_and_remove()
+            except TooLongMaxFrameException as e:
+                print("TooLongMaxFrameException")
+                print(e)
+                self.websocket.on_error("TooLongMaxFrameException")
+            except CloseFrameTooLongException as e:
+                print("CloseFrameTooLongException: the close frame can not be fragmented")
+                print(e)
+                self.websocket.on_error("CloseFrameTooLongException: the close frame can not be fragmented")
+            except TypeError as e:
+                print(e)
+                self.websocket.on_error("TypeError")
+
 
     def do_opcode_operation(self, current_message, current_opcode, fin):
         if current_opcode == Opcode.TEXT_FRAME:  # or Opcode.BINARY_FRAME
