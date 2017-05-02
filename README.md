@@ -6,7 +6,7 @@ A Python WebSocket library
 ## Features
 - Supports handshake
 - Multiple clients with threads
-- Supports messages in text or binary 
+- Supports messages in text or binary and some files
   - With fragmented frames if message length is large enough
 - Ping and Pong
 - Close with status and reason
@@ -20,6 +20,7 @@ A Python WebSocket library
 - Fragmented frames for sending a message that is of unknown size without having to buffer the message
   - Fragmented frames for multiplexing is implemented
 - Timeout
+- Send large files
 
 ## Installation
 #### Clone code from github
