@@ -146,7 +146,8 @@ class Frames(object):
             if not (status_code is None):                                   # if the frame is a close frame
                 message_bytes = status_code.value.to_bytes(2, byteorder='big') + bytes(message, "ascii")
             else:
-                message_bytes = bytes(message, "ascii")                     # message_bytes is the message in bytes
+                #message_bytes = bytes(message)#, "ascii")                     # message_bytes is the message in bytes
+                message_bytes = message.encode()
 
             message_length = len(message_bytes)
             byte_list.append(fin + rsv1 + rsv2 + rsv3 + opcode.value)       # Adding the first byte to the byte_list

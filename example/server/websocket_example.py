@@ -24,11 +24,10 @@ class WebSocketExample(WebSocket):
 
     def on_message(self, new_message, sender):
         print("Received a message (from:", sender.address, "): ", new_message)
-        frames = Frames()
         for client in self.clients:
             if client.state == State.OPEN and client:
                 print("Client:", client)
-                client.send(frames.encode_frame(Opcode.TEXT_FRAME, new_message))
+                client.send(new_message)
 
     def on_close(self, client_closed):
         print("Client closed: ", client_closed)

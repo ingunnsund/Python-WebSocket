@@ -7,6 +7,8 @@ from websocket_lib.status_code import StatusCode
 from websocket_lib.opcode import Opcode
 from websocket_lib.state import State
 from websocket_lib.exceptions import FrameNotMaskedException
+
+
 # TODO: import all exceptions?
 
 
@@ -43,6 +45,7 @@ class ClientSocket(Thread):
                     # self.send(frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Hei", StatusCode.CLOSE_GOING_AWAY))
                     # self.state = State.CLOSING
 
+
                     # TODO: exept. for non cont frame if fin = 0
 
                 elif self.state == State.CONNECTING:
@@ -52,7 +55,7 @@ class ClientSocket(Thread):
                         sec_websocket_key = received_headers.split("Sec-WebSocket-Key: ")[1].split("\r\n")[0]
                         self.do_handshake(sec_websocket_key)
                     else:
-                        self._send_bytes(Utilities.NOT_CORRECT_HANDSHAKE)
+                        self.__send_bytes(Utilities.NOT_CORRECT_HANDSHAKE)
                         print("The request from the client is not a correct handshake")
                         self.close_and_remove()
                 elif self.state == State.CLOSING:
@@ -68,19 +71,21 @@ class ClientSocket(Thread):
                 # TODO: Check type of error and then check if it is needed to close the client
                 self.close_and_remove()
             except FrameNotMaskedException as fnme:
-                self.send(self.frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Frame was not masked",
-                                                  StatusCode.CLOSE_PROTOCOL_ERROR))
+                self.__send_frames(self.frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Frame was not masked",
+                                                           StatusCode.CLOSE_PROTOCOL_ERROR))
                 self.close_and_remove()
                 # TODO: test this and print fnme?
 
     def do_opcode_operation(self, current_message, current_opcode, fin):
         if current_opcode == Opcode.TEXT_FRAME:  # or Opcode.BINARY_FRAME
+            print("TEXT")
             if fin is False:
                 self.message_list.append(current_message)
             else:
                 self.websocket.on_message(current_message, self)
 
         elif current_opcode == Opcode.BINARY_FRAME:
+            print("BINARY")
             if fin is False:
                 self.message_list.append(current_message)
             else:
@@ -88,7 +93,10 @@ class ClientSocket(Thread):
 
         elif current_opcode == Opcode.CONNECTION_CLOSE_FRAME:
             self.state = State.CLOSING
-            self.send(self.frame.encode_frame(Opcode(current_opcode), current_message))
+
+            # TODO: FIX THIS
+            # self.send(self.frame.encode_frame(Opcode(current_opcode), current_message))
+            self.__send_frames(self.frame.encode_frame(Opcode(current_opcode), "", StatusCode.CLOSE_NORMAL))
             self.close_and_remove()
 
         elif current_opcode == Opcode.CONTINUATION_FRAME:
@@ -98,10 +106,9 @@ class ClientSocket(Thread):
                 self.message_list.append(current_message)
                 self.websocket.on_message(''.join(self.message_list), self)
                 self.message_list = []
-            print("CONTINUATION_FRAME")
 
         elif current_opcode == Opcode.PING_FRAME:
-            self.send(self.frame.encode_frame(Opcode.PONG_FRAME, current_message))
+            self.__send_frames(self.frame.encode_frame(Opcode.PONG_FRAME, current_message))
 
         elif current_opcode == Opcode.PONG_FRAME:
             print("PONG_FRAME")
@@ -119,12 +126,18 @@ class ClientSocket(Thread):
 
     # def send(self, message):
 
-    def _send_bytes(self, message_bytes):
+    def __send_bytes(self, message_bytes):
         self.socket.send(message_bytes)
 
-    def send(self, message):
+    def __send_frames(self, message):
         for frame in message:
             self.socket.send(frame)
+
+    def send(self, message):
+        if isinstance(message, str):
+            self.__send_frames(self.frame.encode_frame(Opcode.TEXT_FRAME, message))
+        else:
+            self.__send_frames(self.frame.encode_frame(Opcode.BINARY_FRAME, message))
 
     def close(self):
         """
@@ -144,6 +157,6 @@ class ClientSocket(Thread):
         """
         sec_websocket_accept = Utilities.make_accept_key(sec_websocket_key)
         handshake_response = str.encode(Utilities.handshake_template.format(sec_websocket_accept))
-        self._send_bytes(handshake_response)
+        self.__send_bytes(handshake_response)
         self.state = State.OPEN
         # The clients state is set to OPEN if the handshake is completed correctly
