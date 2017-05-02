@@ -11,7 +11,7 @@ A Python WebSocket library
 - Possibilities for sending small files 
 - Ping and Pong
 - Close with status and reason
-- Allows one extension if some changes are made for the exact extension in the code
+- Allows one extension (if some changes are made for the exact extension in the code)
   - For example: the permessage-deflate extension needs a decompression algorithm 
 - Good error handling with custom exceptions
 
