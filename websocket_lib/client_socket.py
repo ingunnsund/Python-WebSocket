@@ -36,17 +36,7 @@ class ClientSocket(Thread):
                     frame = Frames()
                     message_from_client, current_op_code = frame.decode_message(received_bytes)
 
-                    #message = "1234567" * 10000
-                    message2 = "1122334" * 20000
-                    #framess = frame.encode_frame(Opcode.TEXT_FRAME, message)
-                    framesss = frame.encode_frame(Opcode.TEXT_FRAME, message2)
-                    #for frame1 in framess:
-                    #    print(frame1)
-                    #    self.send(frame1)
-                    for frame2 in framesss:
-                        print(frame2)
-                        self.send(frame2)
-                    self.state = State.TIME_WAIT
+
                     #TODO: check if message is a MESSAGE or a ping/pong
                     #self.send(frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Hei", StatusCode.CLOSE_GOING_AWAY))
                     #self.state = State.CLOSING
@@ -87,7 +77,7 @@ class ClientSocket(Thread):
                         sec_websocket_key = received_headers.split("Sec-WebSocket-Key: ")[1].split("\r\n")[0]
                         self.do_handshake(sec_websocket_key)
                     else:
-                        self.send(Utilities.NOT_CORRECT_HANDSHAKE)
+                        self._send_bytes(Utilities.NOT_CORRECT_HANDSHAKE)
                         print("The request from the client is not a correct handshake")
                         self.close_and_remove()
                 elif self.state == State.CLOSING:
@@ -122,8 +112,12 @@ class ClientSocket(Thread):
 
     #def send(self, message):
 
+    def _send_bytes(self, message_bytes):
+        self.socket.send(message_bytes)
+
     def send(self, message):
-        self.socket.send(message)
+        for frame in message:
+            self.socket.send(frame)
 
     def close(self):
         """
@@ -143,6 +137,6 @@ class ClientSocket(Thread):
         """
         sec_websocket_accept = Utilities.make_accept_key(sec_websocket_key)
         handshake_response = str.encode(Utilities.handshake_template.format(sec_websocket_accept))
-        self.send(handshake_response)
+        self._send_bytes(handshake_response)
         self.state = State.OPEN
         # The clients state is set to OPEN if the handshake is completed correctly
