@@ -57,9 +57,9 @@ class Frames(object):
                 raise TypeError('status_code must be an instance of StatusCode Enum')
 
             encoded_frames = []
-            message_length = len(message)
+            message_length = len(message) # TODO: til bytes først, deretter lengde
 
-            if message_length > self.max_length_frame:               # Check if the frame should be fragmented
+            if message_length > self.max_length_frame:          # Check if the frame should be fragmented
                 fin = 0                                         # FIN = 0
                 if opcode == Opcode.CONNECTION_CLOSE_FRAME:     # Close frames can not ble fragmented
                     raise CloseFrameTooLongException
@@ -150,8 +150,11 @@ class Frames(object):
             if not (status_code is None):                                   # if the frame is a close frame
                 message_bytes = status_code.value.to_bytes(2, byteorder='big') + bytes(message, "ascii")
             else:
-                #message_bytes = bytes(message)#, "ascii")                     # message_bytes is the message in bytes
-                message_bytes = message.encode()
+                if isinstance(message, str):
+                    #message_bytes = bytes(message)#, "ascii")
+                    message_bytes = message.encode()                        # message_bytes is the message in bytes
+                else:
+                    message_bytes = message
 
             message_length = len(message_bytes)
             byte_list.append(fin + rsv1 + rsv2 + rsv3 + opcode.value)       # Adding the first byte to the byte_list
@@ -219,7 +222,11 @@ class Frames(object):
 
             j = 0
             while data_start < len(message):                        # Unmasks message and adding to the decoded message list
-                decoded_message.append(chr(message[data_start] ^ masks[j%4]))
+                mess = message[data_start] ^ masks[j%4]
+                if opcode is Opcode.BINARY_FRAME:
+                    decoded_message.append(bin(mess))
+                else:
+                    decoded_message.append(chr(mess))
                 data_start += 1
                 j += 1
 
