@@ -6,7 +6,8 @@ A Python WebSocket library
 ## Features
 - Supports handshake
 - Multiple clients with threads
-- Supports messages in text or binary (with fragmented frames if message length is large enough)
+- Supports messages in text or binary 
+  - With fragmented frames if message length is large enough
 - Ping and Pong
 - Close with status and reason
 - Timeout 
