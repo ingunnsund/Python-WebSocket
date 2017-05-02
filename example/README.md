@@ -1,5 +1,5 @@
 # WebSocket Example
-To run the example code either open the python code in the [server directory](server) in an IDE and run it or run it with command
+To run the example code either open the Python code in the [server directory](server) in an IDE and run it, or run it with command
 line:
 
 ```
