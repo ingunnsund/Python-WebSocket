@@ -15,6 +15,7 @@ A Python WebSocket library
 - Allows one extension (if some changes are made for the exact extension in the code)
   - For example: the permessage-deflate extension needs a decompression algorithm 
 - Good error handling with custom exceptions
+- Communicates with a webbrowser via JavaScript
 
 ### Future Implementation
 - WSS (WebSocket Secure)
