@@ -39,6 +39,17 @@ class ClientSocket(Thread):
                     frame = Frames()
                     message_from_client = frame.decode_message(received_bytes)
 
+                    #message = "1234567" * 10000
+                    message2 = "1122334" * 20000
+                    #framess = frame.encode_frame(Opcode.TEXT_FRAME, message)
+                    framesss = frame.encode_frame(Opcode.TEXT_FRAME, message2)
+                    #for frame1 in framess:
+                    #    print(frame1)
+                    #    self.send(frame1)
+                    for frame2 in framesss:
+                        print(frame2)
+                        self.send(frame2)
+                    self.state = State.TIME_WAIT
                     #message_from_client[0] = message and [1] = opcode of the message
                     #TODO: check if message is a MESSAGE or a ping/pong
                     self.websocket.on_message(message_from_client[0])

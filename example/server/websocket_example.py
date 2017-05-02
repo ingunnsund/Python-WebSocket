@@ -27,7 +27,7 @@ class WebSocketExample(WebSocket):
         for client in self.clients:
             if client.state == State.OPEN and client:
                 print("Client:", client)
-                client.send(frames.text_frame(new_message))
+                #client.send(frames.text_frame(new_message))
 
     def on_close(self, client_closed):
         print("Client closed: ", client_closed)
