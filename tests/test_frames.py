@@ -91,7 +91,6 @@ class TestFrames(TestCase):
         # Test for result2:
         self.assertNotEqual(result2_opcode, expected_result_opcode)
 
-
     def test_decode_unmasked_frame(self):
         """
         Test if attempt to decode unmasked frame results in exception

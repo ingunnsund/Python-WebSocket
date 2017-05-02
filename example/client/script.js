@@ -1,5 +1,5 @@
 /**
- * Created by Knut on 27.04.2017.
+ * Created by Knut and Ingunn on 27.04.2017.
  */
 
 
@@ -15,7 +15,6 @@ $(document).ready(function() {
 
     webSocket.onopen = (message) => {
         console.log("Connection is open");
-        //console.log(message);
         webSocket.send("This is a test message");
     };
 
@@ -26,6 +25,7 @@ $(document).ready(function() {
         let username = jsonMessage.username;
         let message = jsonMessage.message;
         let sendDate = jsonMessage.send_date;
+        let messageColor = jsonMessage.message_color;
 
         console.log(myUsername + ", " + username);
 
@@ -40,10 +40,9 @@ $(document).ready(function() {
             messageClass += "message-others";
         }
 
-        messageClass += " " + $("#message-back-color").val().toLowerCase();
+        messageClass += " " + messageColor;
 
         let newElement = '<p class="' + messageClass + '">[' + sendDate + '] ' + message + '</p>';
-        console.log(newElement)
         $("#messages").append(newElement)
         $("#messages").scrollTop($("#messages")[0].scrollHeight);
         //webSocket.close(1000);
@@ -62,6 +61,7 @@ $(document).ready(function() {
             let username = $("#username-input").val();
             let now = new Date();
             let sendDate = now.getHours() + ":" + now.getMinutes();
+            let messageColor = $("#message-back-color").val().toLowerCase();
 
             if (username === "") {
                 username = "Anonymous";
@@ -71,7 +71,8 @@ $(document).ready(function() {
             let jsonMessage = {
                 "username": username,
                 "message": $("#input-text").val(),
-                "send_date": sendDate
+                "send_date": sendDate,
+                "message_color": messageColor
             };
 
             webSocket.send(JSON.stringify(jsonMessage));

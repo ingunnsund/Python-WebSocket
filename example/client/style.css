@@ -37,8 +37,6 @@ head, body {
     padding: 8px;
 
     width: 50%;
-    /* Bigger messages overflow */
-    /* Ta bare størrelsen til meldingen */
     display: inline-block;
 }
 

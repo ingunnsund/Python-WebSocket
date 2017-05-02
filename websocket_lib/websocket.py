@@ -7,11 +7,14 @@ from websocket_lib.client_socket import ClientSocket
 class WebSocket(Thread):
     server_running = True
 
-    def __init__(self, ip_address="127.0.0.1", port_number=80, backlog=5, extension="", rsv_number_extension=0):
+    def __init__(self, ip_address="127.0.0.1", port_number=80, backlog=5, ping_timeout=250, max_length_frame=65535,
+                 extension="", rsv_number_extension=0):
         super().__init__()
         self.ip_address = ip_address
         self.port_number = port_number
         self.backlog = backlog
+        self.ping_timeout = ping_timeout
+        self.max_length_frame = max_length_frame
         self.clients = []
         self.extension = extension
         self.rsv_number_extension = rsv_number_extension
@@ -31,7 +34,8 @@ class WebSocket(Thread):
             # Set variable of the connection and the address of the incoming connection
             connection, address = listen_socket.accept()
             # Create a new client and start the thread to it.
-            client = ClientSocket(connection, address, self)
+            client = ClientSocket(connection, address, self, ping_timeout=self.ping_timeout,
+                                  max_length_frame=self.max_length_frame)
             client.start()
             # Add the client to the list of clients
             self.clients.append(client)
@@ -77,14 +81,12 @@ class WebSocket(Thread):
         This method is meant to be extended.
         :param client_closed: the client that is closed
         """
-        # TODO: status code/reason?
         raise NotImplementedError("This method is abstract and meant to be extended")
 
     def on_error(self, error_message):
         """
         Abstract method of when a client in the websockets client list gets an error.
         This method is meant to be extended.
-        :return: 
+        :param error_message: the description of the error
         """
-        # TODO: add parameter to this method
         raise NotImplementedError("This method is abstract and meant to be extended")
