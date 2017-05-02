@@ -20,6 +20,7 @@
 """
 
 from websocket_lib.exceptions import FrameNotMaskedException
+from websocket_lib.exceptions import CloseFrameTooLongException
 from websocket_lib.status_code import StatusCode
 from websocket_lib.opcode import Opcode
 
@@ -27,22 +28,61 @@ from websocket_lib.opcode import Opcode
 class Frames(object):
 
     def encode_frame(self, opcode, message="", status_code=None):
-        if not isinstance(opcode, Opcode):
-            raise TypeError('status_code must be an instance of StatusCode Enum')
+        try:
+            if not isinstance(opcode, Opcode):
+                raise TypeError('status_code must be an instance of StatusCode Enum')
 
-        if opcode == Opcode.CONNECTION_CLOSE_FRAME:
-            if status_code is None:
-                return self.__encode_message(opcode.value, message, status_code)
+            encoded_frames = []
+            message_length = len(message)
+            max_length_frame = 65535
+
+            if message_length > max_length_frame:
+                fin = 0
+                if opcode == Opcode.CONNECTION_CLOSE_FRAME:
+                    raise CloseFrameTooLongException
+                encoded_frames.append(self.__encode_message(opcode, message[0:max_length_frame], status_code, fin))
+                length_used = max_length_frame
+                opcode = Opcode.CONTINUATION_FRAME
+                while not length_used == message_length:
+                    if (message_length - length_used) > max_length_frame:
+                        encoded_frames.append(
+                            self.__encode_message(opcode, message[length_used:(length_used + max_length_frame)],
+                                                  status_code, fin))
+                        length_used += max_length_frame
+
+                    else:
+                        fin = 128
+                        encoded_frames.append(
+                            self.__encode_message(opcode, message[length_used:(message_length + 1)], status_code, fin))
+                        length_used = message_length
+
+                return encoded_frames
+
             else:
-                if not isinstance(status_code, StatusCode):
-                    raise TypeError('status_code must be an instance of StatusCode Enum')
-                message = str(str(status_code.name) + " " + message)
-                return self.__encode_message(opcode, message, status_code)
-        return self.__encode_message(opcode, message, status_code)
+                fin = 128
+            if opcode == Opcode.CONNECTION_CLOSE_FRAME:  # TODO: ex if fin = 0, close is one frame
+                if status_code is None:
+                    encoded_frames.append(self.__encode_message(opcode, message, status_code, fin))
+                    return encoded_frames
+                else:
+                    if not isinstance(status_code, StatusCode):
+                        raise TypeError('status_code must be an instance of StatusCode Enum')
+                    message = str(str(status_code.name) + " " + message)
+                    encoded_frames.append(self.__encode_message(opcode, message, status_code, fin))
+                    return encoded_frames
+            encoded_frames.append(self.__encode_message(opcode, message, status_code, fin))
+            return encoded_frames
+        except CloseFrameTooLongException as e:
+            print("CloseFrameTooLongException: the close frame can not be fragmented")
+            print(e)
+            return e, None
+        except TypeError as e:
+            print(e)
+            return e, None
+
 
     # Encode message from server
-    def __encode_message(self, opcode, message, status_code):
-        fin = 128
+    def __encode_message(self, opcode, message, status_code, fin):
         rsv1 = 0
         rsv2 = 0
         rsv3 = 0
@@ -70,6 +110,8 @@ class Frames(object):
             byte_list.append(message_length & 255)
 
         else:
+            print("Frame capacity error")
+            """
             byte_list.append(127)
             byte_list.append((message_length >> 56) & 255)
             byte_list.append((message_length >> 48) & 255)
@@ -78,7 +120,7 @@ class Frames(object):
             byte_list.append((message_length >> 24) & 255)
             byte_list.append((message_length >> 16) & 255)
             byte_list.append((message_length >> 8) & 255)
-            byte_list.append(message_length & 255)
+            byte_list.append(message_length & 255)"""
 
         byte_list = bytes(byte_list)
         byte_list = byte_list + message_bytes
