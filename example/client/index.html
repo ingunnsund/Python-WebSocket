@@ -12,18 +12,24 @@
     <div id="container-middle">
         <h1>WebSocket example</h1>
 
-        <input type="file" id="filename" />
-        <div></div>
+        <input type="file" id="upload_file" />
+        <button id="upload_file_button" type="button">Upload File</button>
+        <span>Choose message background color: </span>
+        <select id="message-back-color">
+            <option>Gray</option>
+            <option>Red</option>
+            <option>Blue</option>
+            <option>Green</option>
+            <option>Yellow</option>
+        </select>
 
         <input id="username-input" type="text" placeholder="Username...">
         <div id="message-board">
-            <div id="messages">
-
-            </div>
+            <div id="messages"></div>
 
             <div id="send-new-message-box">
                 <input id="input-text" type="text" placeholder="Write a message...">
-                <button id="send-message" type="button">Send message</button>
+                <button id="send-message" class="blue-button" type="button">Send message</button>
             </div>
         </div>
 

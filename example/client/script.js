@@ -19,8 +19,7 @@ $(document).ready(function() {
 
     webSocket.onmessage = (event) => {
         console.log("You received a message");
-
-        alert(event.data);
+        
         let jsonMessage = JSON.parse(event.data);
         let username = jsonMessage.username;
         let message = jsonMessage.message;
@@ -39,7 +38,10 @@ $(document).ready(function() {
             messageClass += "message-others";
         }
 
-        let newElement = '<p class="' + messageClass + '">' + message + '</p>';
+        messageClass += " " + $("#message-back-color").val().toLowerCase();
+
+        let newElement = '<p class="' + messageClass + '">[' + sendDate + '] ' + message + '</p>';
+        console.log(newElement)
         $("#messages").append(newElement)
         $("#messages").scrollTop($("#messages")[0].scrollHeight);
         //webSocket.close(1000);
@@ -80,4 +82,11 @@ $(document).ready(function() {
             $("#send-message").click();
         }
     });
+
+    $("#upload_file_button").click(function() {
+        let fileName = $("#upload_file")[0].files[0];
+        //webSocket.binaryData = "blob";
+        webSocket.send(fileName)
+
+    })
 });

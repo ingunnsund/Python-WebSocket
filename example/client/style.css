@@ -22,6 +22,7 @@ head, body {
     height: 300px;
     overflow: auto;
     border-radius: 5px;
+    position: relative;
 }
 
 .message {
@@ -49,7 +50,29 @@ head, body {
     float: left;
 }
 
+#send-new-message-box {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+#input-text {
+    width: 78.43191%;
+    margin: 0;
+    border: 1px solid gray;
+    border-radius: 0 0 0 5px;
+    padding: 5px;
+}
+
+#send-message {
+    margin: 0;
+    padding: 5px;
+}
+
 /* Colors of different messages */
+
+/* gray is default color */
+
 .red {
     background-color: #f7b0af;
 }
@@ -64,4 +87,11 @@ head, body {
 
 .yellow {
     background-color: #ffffa0;
+}
+
+/* Theme for button */
+.blue-button {
+    border: 0;
+    background-color: #48a3e6;
+    color: white;
 }
