@@ -1,4 +1,67 @@
 head, body {
     margin: 0;
     padding: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+#container-middle {
+    margin: 0 auto;
+    text-align: center;
+    width: 40%;
+}
+
+#username-input {
+    text-align: center;
+    margin: 2.5%;
+    width: 35%;
+}
+
+#message-board {
+    border: 1px solid #878787;
+    margin: 0 auto;
+    height: 300px;
+    overflow: auto;
+    border-radius: 5px;
+}
+
+.message {
+    text-align: left;
+    border-radius: 5px;
+    margin-top: 2px;
+    margin-left: 0;
+    margin-right: 0;
+    /*padding: 2px;*/
+
+    background-color: lightgray;
+    padding: 8px;
+
+    width: 50%;
+    /* Bigger messages overflow */
+    /* Ta bare størrelsen til meldingen */
+    display: inline-block;
+}
+
+.message-own {
+    float: right;
+}
+
+.message-others {
+    float: left;
+}
+
+/* Colors of different messages */
+.red {
+    background-color: #f7b0af;
+}
+
+.blue {
+    background-color: #bacfff;
+}
+
+.green {
+    background-color: rgb(164, 228, 182);
+}
+
+.yellow {
+    background-color: #ffffa0;
 }
