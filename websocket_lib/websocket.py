@@ -80,7 +80,7 @@ class WebSocket(Thread):
         # TODO: status code/reason?
         raise NotImplementedError("This method is abstract and meant to be extended")
 
-    def on_error(self):
+    def on_error(self, error_message):
         """
         Abstract method of when a client in the websockets client list gets an error.
         This method is meant to be extended.

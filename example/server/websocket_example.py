@@ -22,8 +22,8 @@ class WebSocketExample(WebSocket):
     def on_connection(self, new_client):
         print("New incoming client connection from:", new_client.address)
 
-    def on_error(self):
-        print("Client error")
+    def on_error(self, error_message):
+        print("Client error: " + error_message)
 
     def on_message(self, new_message, sender):
         print("Received a message (from:", sender.address, "): ", new_message)
