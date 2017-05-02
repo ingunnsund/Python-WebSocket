@@ -19,7 +19,7 @@ $(document).ready(function() {
 
     webSocket.onmessage = (event) => {
         console.log("You received a message");
-
+        
         let jsonMessage = JSON.parse(event.data);
         let username = jsonMessage.username;
         let message = jsonMessage.message;

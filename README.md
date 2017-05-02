@@ -8,6 +8,7 @@ A Python WebSocket library
 - Multiple clients with threads
 - Supports messages in text or binary 
   - With fragmented frames if message length is large enough
+- Supports sending files
 - Ping and Pong
 - Close with status and reason
 - Timeout 

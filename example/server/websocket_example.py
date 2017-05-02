@@ -9,12 +9,15 @@ Example of usage with the web socket library
 
 
 class WebSocketExample(WebSocket):
+    # Variables for use of server
     ip_address = "127.0.0.1"
     port_number = 3001
     backlog = 5
+    #exten = "permessage-deflate"
+    #nrex = 1
 
     def __init__(self):
-        super().__init__(self.ip_address, self.port_number, self.backlog)
+        super().__init__(self.ip_address, self.port_number, self.backlog)#, self.exten, self.nrex)
 
     def on_connection(self, new_client):
         print("New incoming client connection from:", new_client.address)

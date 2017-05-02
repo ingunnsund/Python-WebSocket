@@ -7,9 +7,7 @@ from websocket_lib.status_code import StatusCode
 from websocket_lib.opcode import Opcode
 from websocket_lib.state import State
 from websocket_lib.exceptions import FrameNotMaskedException
-
-
-# TODO: import all exceptions?
+from websocket_lib.exceptions import ExtensionException
 
 
 class ClientSocket(Thread):
@@ -65,16 +63,24 @@ class ClientSocket(Thread):
                         self.close_and_remove()
 
             except socketerror as e:
-                # TODO: check om denne må bytte om navnene
                 print("Error: ")
-                # TODO: print e?
-                # TODO: Check type of error and then check if it is needed to close the client
+                print(e)
                 self.close_and_remove()
             except FrameNotMaskedException as fnme:
+                print("FrameNotMaskedException: ")
+                print(fnme)
+                frame = Frames()
                 self.__send_frames(self.frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Frame was not masked",
-                                                           StatusCode.CLOSE_PROTOCOL_ERROR))
+                                    StatusCode.CLOSE_PROTOCOL_ERROR))
                 self.close_and_remove()
-                # TODO: test this and print fnme?
+            except ExtensionException as e:
+                print("ExtensionException: ")
+                print(e)
+                frame = Frames()
+                self.__send_frames(self.frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Extension Exception",
+                                    StatusCode.CLOSE_PROTOCOL_ERROR))
+
+                self.close_and_remove()
 
     def do_opcode_operation(self, current_message, current_opcode, fin):
         if current_opcode == Opcode.TEXT_FRAME:  # or Opcode.BINARY_FRAME
@@ -156,7 +162,22 @@ class ClientSocket(Thread):
         :param sec_websocket_key: is the "Sec-WebSocket-Key" from the header that is sent from the client
         """
         sec_websocket_accept = Utilities.make_accept_key(sec_websocket_key)
-        handshake_response = str.encode(Utilities.handshake_template.format(sec_websocket_accept))
+
+        handshake_format = Utilities.handshake_template.format(sec_websocket_accept, "")
+        if (not self.websocket.extension == "") and (not self.websocket.rsv_number_extension == 0):
+            extension = "\r\nSec-WebSocket-Extensions: " + self.websocket.extension
+            handshake_format = Utilities.handshake_template.format(sec_websocket_accept, extension)
+
+            if self.websocket.rsv_number_extension == 1:
+                self.frame = Frames(rsv1_extension=True)
+            elif self.websocket.rsv_number_extension == 2:
+                self.frame = Frames(rsv2_extension=True)
+            elif self.websocket.rsv_number_extension == 3:
+                self.frame = Frames(rsv3_extension=True)
+            else:
+                handshake_format = Utilities.handshake_template.format(sec_websocket_accept, "")
+
+        handshake_response = str.encode(handshake_format)
         self.__send_bytes(handshake_response)
         self.state = State.OPEN
         # The clients state is set to OPEN if the handshake is completed correctly

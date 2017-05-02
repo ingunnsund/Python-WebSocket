@@ -7,12 +7,14 @@ from websocket_lib.client_socket import ClientSocket
 class WebSocket(Thread):
     server_running = True
 
-    def __init__(self, ip_address="127.0.0.1", port_number=80, backlog=5):
+    def __init__(self, ip_address="127.0.0.1", port_number=80, backlog=5, extension="", rsv_number_extension=0):
         super().__init__()
         self.ip_address = ip_address
         self.port_number = port_number
         self.backlog = backlog
         self.clients = []
+        self.extension = extension
+        self.rsv_number_extension = rsv_number_extension
 
     def run(self):
         """
