@@ -9,7 +9,8 @@ class Utilities(object):
     handshake_template = "HTTP/1.1 101 Switching Protocols\r\n" \
                          "Upgrade: Websocket\r\n" \
                          "Connection: Upgrade\r\n" \
-                         "Sec-WebSocket-Accept: {}\r\n\r\n"
+                         "Sec-WebSocket-Accept: {0}" \
+                         "{1}\r\n\r\n"
     NOT_CORRECT_HANDSHAKE = str.encode("HTTP/1.1 426 Upgrade Required\r\n"
                                        + "Content-Type: text/html\r\n"
                                        + "\r\n"

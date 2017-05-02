@@ -7,7 +7,7 @@ from websocket_lib.status_code import StatusCode
 from websocket_lib.opcode import Opcode
 from websocket_lib.state import State
 from websocket_lib.exceptions import FrameNotMaskedException
-#TODO: import all exceptions?
+from websocket_lib.exceptions import ExtensionException
 
 
 class ClientSocket(Thread):
@@ -19,6 +19,8 @@ class ClientSocket(Thread):
         self.address = address
         self.websocket = websocket
         self.state = state
+        self.frame = Frames()
+        self.message_list = []
 
     def run(self):
         """
@@ -34,9 +36,10 @@ class ClientSocket(Thread):
                 # Check what state the client is in and then choose what to do with the received data
                 if self.state == State.OPEN:
                     frame = Frames()
-                    message_from_client, current_op_code = frame.decode_message(received_bytes)
+                    message_from_client, current_op_code, fin = frame.decode_message(received_bytes)
 
-
+                    #self.send(frame.encode_frame(Opcode.TEXT_FRAME, "Test komprimerto"))
+                    self.state = State.TIME_WAIT
                     #TODO: check if message is a MESSAGE or a ping/pong
                     #self.send(frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Hei", StatusCode.CLOSE_GOING_AWAY))
                     #self.state = State.CLOSING
@@ -90,18 +93,23 @@ class ClientSocket(Thread):
                     #self.send(received_bytes)
 
             except socketerror as e:
-                #TODO: check om denne må bytte om navnene
                 print("Error: ")
-                # TODO: print e?
-                # TODO: Check type of error and then check if it is needed to close the client
+                print(e)
                 self.close_and_remove()
             except FrameNotMaskedException as fnme:
+                print("rameNotMaskedException: ")
+                print(fnme)
                 frame = Frames()
                 self.send(frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Frame was not masked",
                                              StatusCode.CLOSE_PROTOCOL_ERROR))
                 self.close_and_remove()
-                # TODO: test this and print fnme?
-
+            except ExtensionException as e:
+                print("ExtensionException: ")
+                print(e)
+                frame = Frames()
+                self.send(frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, "Extension Exception",
+                                             StatusCode.CLOSE_PROTOCOL_ERROR))
+                self.close_and_remove()
     def close_and_remove(self):
         """
         Method for easier closing of the clients socket and then removing it from the websockets list of clients
@@ -139,7 +147,21 @@ class ClientSocket(Thread):
         :param sec_websocket_key: is the "Sec-WebSocket-Key" from the header that is sent from the client
         """
         sec_websocket_accept = Utilities.make_accept_key(sec_websocket_key)
-        handshake_response = str.encode(Utilities.handshake_template.format(sec_websocket_accept))
+        handshake_format = Utilities.handshake_template.format(sec_websocket_accept, "")
+        if (not self.websocket.extension == "") and (not self.websocket.rsv_number_extension == 0):
+            extension = "\r\nSec-WebSocket-Extensions: " + self.websocket.extension
+            handshake_format = Utilities.handshake_template.format(sec_websocket_accept, extension)
+
+            if self.websocket.rsv_number_extension == 1:
+                self.frame = Frames(rsv1_extension=True)
+            elif self.websocket.rsv_number_extension == 2:
+                self.frame = Frames(rsv2_extension=True)
+            elif self.websocket.rsv_number_extension == 3:
+                self.frame = Frames(rsv3_extension=True)
+            else:
+                handshake_format = Utilities.handshake_template.format(sec_websocket_accept, "")
+
+        handshake_response = str.encode(handshake_format)
         self._send_bytes(handshake_response)
         self.state = State.OPEN
         # The clients state is set to OPEN if the handshake is completed correctly
