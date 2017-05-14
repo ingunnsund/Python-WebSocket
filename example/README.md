@@ -1,5 +1,7 @@
 # WebSocket Example
-To run the example code either open the python code in the [server directory](server) in an IDE and run it or run it with command
+This example is a chat between multiple clients. They can choose the background-color of the text and a username. 
+
+To run the example code either open the Python code in the [server directory](server) in an IDE and run it, or run it with command
 line:
 
 ```
