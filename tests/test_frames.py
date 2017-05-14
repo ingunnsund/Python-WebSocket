@@ -30,7 +30,6 @@ class TestFrames(TestCase):
         result = frames.encode_frame(Opcode.TEXT_FRAME, ("1122334" * 20000))
         self.assertEqual(result, expected_result)
 
-
     def test_encode_fragmented_close_frame(self):
         """
         Test for encoding fragmented close frame, must result in exception
@@ -47,7 +46,6 @@ class TestFrames(TestCase):
         expected_result = [b'\x89\x00']
         result = frames.encode_frame(Opcode.PING_FRAME)
         self.assertEqual(result, expected_result)
-
 
     def test_too_long_max_frame(self):
         """
