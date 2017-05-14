@@ -138,7 +138,7 @@ class ClientSocket(Thread):
         """
         self.state = State.CLOSED
         self.websocket.clients.remove(self)
-        self.close()
+        self.__close_client()
 
     def receive(self, buffer_size):
         return self.socket.recv(buffer_size)
@@ -156,13 +156,18 @@ class ClientSocket(Thread):
         else:
             self.__send_frames(self.frame.encode_frame(Opcode.BINARY_FRAME, message))
 
-    def close(self):
+    def __close_client(self):
         """
         Method for closing the clients socket and calling the websockets method on_close so that the library can be
         overrided in an extended class and used easier 
         """
         self.websocket.on_close(self)
         self.socket.close()
+
+    def close(self, status_code=StatusCode.CLOSE_NORMAL, reason=""):
+        self.state = State.CLOSING
+        self.__send_frames(self.frame.encode_frame(Opcode.CONNECTION_CLOSE_FRAME, reason, status_code))
+        self.close_and_remove()
 
     def do_handshake(self, sec_websocket_key):
         """
